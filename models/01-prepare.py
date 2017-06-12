@@ -56,10 +56,6 @@ def process_arguments(args):
                         default=128,
                         help='Number of Mel bins')
 
-    parser.add_argument('--conv2', dest='conv2',
-                        action='store_true',
-                        help='Prepare data for 2d convolutions')
-
     parser.add_argument('--jobs', dest='n_jobs', type=int,
                         default=1,
                         help='Number of jobs to run in parallel')
@@ -77,12 +73,7 @@ def process_arguments(args):
     return parser.parse_args(args)
 
 
-def make_pump(sr, hop_length, n_fft, n_mels, conv2):
-
-    if conv2:
-        conv = 'tf'
-    else:
-        conv = None
+def make_pump(sr, hop_length, n_fft, n_mels):
 
     p_feature = pumpp.feature.Mel(name='mel',
                                   sr=sr,
@@ -90,7 +81,7 @@ def make_pump(sr, hop_length, n_fft, n_mels, conv2):
                                   n_fft=n_fft,
                                   n_mels=n_mels,
                                   log=True,
-                                  conv=conv)
+                                  conv='tf')
 
     p_tag = pumpp.task.StaticLabelTransformer(name='static',
                                               namespace='tag_open',
@@ -122,8 +113,7 @@ if __name__ == '__main__':
     pump = make_pump(params.sr,
                      params.hop_length,
                      params.n_fft,
-                     params.n_mels,
-                     params.conv2)
+                     params.n_mels)
 
     stream = tqdm(milsed.utils.get_ann_audio(params.input_path),
                   desc='Converting training data')

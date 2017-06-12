@@ -151,11 +151,13 @@ def construct_model(pump, alpha):
     # Apply batch normalization
     x_bn = K.layers.BatchNormalization()(x_mag)
 
+    x_sq = milsed.layers.SqueezeLayer()(x_bn)
+
     # First convolutional filter: a single 3-frame filters
     conv1 = K.layers.Convolution1D(64, 3,
                                    padding='same',
                                    activation='relu',
-                                   data_format='channels_last')(x_bn)
+                                   data_format='channels_last')(x_sq)
 
     # First recurrent layer: a 128-dim bidirectional gru
     rnn1 = K.layers.Bidirectional(K.layers.GRU(128,
@@ -167,9 +169,9 @@ def construct_model(pump, alpha):
 
     p_dynamic = K.layers.TimeDistributed(p0, name='dynamic/tags')(rnn1)
 
-    p_static = milsed.layes.SoftMaxPool(alpha=alpha,
-                                        axis=1,
-                                        name='static/tags')(p_dynamic)
+    p_static = milsed.layers.SoftMaxPool(alpha=alpha,
+                                         axis=1,
+                                         name='static/tags')(p_dynamic)
 
     model = K.models.Model([x_mag],
                            [p_dynamic, p_static])
