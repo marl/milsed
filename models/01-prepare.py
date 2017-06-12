@@ -18,6 +18,25 @@ import milsed.utils
 OUTPUT_PATH = 'resources'
 
 
+DCASE_CLASSES = ['Train horn',
+                 'Truck horn',
+                 'Car alarm',
+                 'Reversing beeps',
+                 'Ambulance siren',
+                 'Police siren',
+                 'Fire truck siren',
+                 'Civil defense siren',
+                 'Screaming',
+                 'Bicycle',
+                 'Skateboard',
+                 'Car',
+                 'Car passing',
+                 'Bus',
+                 'Truck',
+                 'Motorcycle',
+                 'Train']
+
+
 def process_arguments(args):
     parser = argparse.ArgumentParser(description=__doc__)
 
@@ -73,10 +92,9 @@ def make_pump(sr, hop_length, n_fft, n_mels, conv2):
                                   log=True,
                                   conv=conv)
 
-    # FIXME: add the dcase label set
     p_tag = pumpp.task.StaticLabelTransformer(name='static',
                                               namespace='tag_open',
-                                              labels=[])
+                                              labels=DCASE_CLASSES)
 
     pump = pumpp.Pump(p_feature, p_tag)
 

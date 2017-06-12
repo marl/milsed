@@ -20,11 +20,8 @@ OUTPUT_PATH = 'resources'
 def process_arguments(args):
     parser = argparse.ArgumentParser(description=__doc__)
 
-    parser.add_argument('--stretch', dest='stretch', type=float, default=0.333,
-                        help='Relative time stretch range')
-
-    parser.add_argument('--n-stretch', dest='n_stretch', type=int, default=4,
-                        help='Number of stretched examples')
+    parser.add_argument('--semitones', dest='semitones', type=int, default=6,
+                        help='Number of semitones to deform by')
 
     parser.add_argument('--audio-ext', dest='audio_ext', type=str,
                         default='ogg',
@@ -60,12 +57,14 @@ def augment(afile, jfile, deformer, outpath, audio_ext, jams_ext):
                   jam_out, strict=False)
 
 
-def make_muda(stretch, n_stretch):
-    '''Construct a MUDA time stretcher'''
+def make_muda(n_semitones):
+    '''Construct a MUDA pitch shifter'''
 
-    shifter = muda.deformers.LogspaceTimeStretch(n_samples=n_stretch,
-                                                 lower=-stretch,
-                                                 upper=stretch)
+    tones = []
+    for n in range(n_semitones):
+        tones.extend([-n, n])
+
+    shifter = muda.deformers.PitchShift(n_semitones=tones)
 
     smkdirs(OUTPUT_PATH)
     with open(os.path.join(OUTPUT_PATH, 'muda.pkl'), 'wb') as fd:
@@ -83,7 +82,7 @@ if __name__ == '__main__':
     print(params)
 
     # Build the deformer
-    deformer = make_muda(params.stretch, params.n_stretch)
+    deformer = make_muda(params.semitones)
 
     # Get the file list
     stream = tqdm(milsed.utils.get_ann_audio(params.input_path),
