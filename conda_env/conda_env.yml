@@ -16,20 +16,25 @@ dependencies:
 - conda-forge::h5py=2.7.0=np112py35_1
 - conda-forge::hdf5=1.8.18=0
 - conda-forge::joblib=0.11=py35_0
+- conda-forge::keras=2.0.2=py35_1
 - conda-forge::libgfortran=3.0.0=0
 - conda-forge::libiconv=1.14=4
 - conda-forge::libpng=1.6.28=0
 - conda-forge::librosa=0.5.1=py35_1
 - conda-forge::matplotlib=2.0.2=np112py35_0
+- conda-forge::mock=2.0.0=py35_0
 - conda-forge::ncurses=5.9=10
 - conda-forge::numpy=1.12.1=py35_blas_openblas_200
 - conda-forge::openblas=0.2.19=2
 - conda-forge::openssl=1.0.2k=0
+- conda-forge::pbr=3.0.1=py35_0
 - conda-forge::pip=9.0.1=py35_0
+- conda-forge::protobuf=3.3.0=py35_2
 - conda-forge::pyparsing=2.2.0=py35_0
 - conda-forge::python=3.5.3=3
 - conda-forge::python-dateutil=2.6.0=py35_0
 - conda-forge::pytz=2017.2=py35_0
+- conda-forge::pyyaml=3.12=py35_1
 - conda-forge::readline=6.2=0
 - conda-forge::resampy=0.1.5=np112py35_1
 - conda-forge::scikit-learn=0.18.1=np112py35_blas_openblas_200
@@ -37,20 +42,34 @@ dependencies:
 - conda-forge::setuptools=33.1.1=py35_0
 - conda-forge::six=1.10.0=py35_1
 - conda-forge::sqlite=3.13.0=1
+- conda-forge::tensorflow=1.0.0=py35_0
 - conda-forge::tk=8.5.19=1
 - conda-forge::tornado=4.5.1=py35_0
 - conda-forge::wheel=0.29.0=py35_0
 - conda-forge::x264=20131217=3
 - conda-forge::xz=5.2.2=0
+- conda-forge::yaml=0.1.6=0
 - conda-forge::zlib=1.2.11=0
 - mkl=2017.0.1=0
 - pip:
+  - cffi==1.10.0
+  - coloredlogs==7.0
   - future==0.16.0
+  - humanfriendly==3.2
   - jams==0.2.3
   - jsonschema==2.6.0
   - mir-eval==0.4
+  - msgpack-python==0.4.8
+  - pafy==0.5.3.1
   - pandas==0.20.2
   - pescador==1.0.0
+  - pycparser==2.17
+  - pydot-ng==1.0.0
   - pyzmq==16.0.2
+  - sed-eval==0.1.6
+  - soundfile==0.9.0.post1
+  - theano==0.9.0
+  - tqdm==4.14.0
+  - youtube-dl==2017.6.12
 prefix: /Users/justin/dev/miniconda3/envs/py35milsed
 
