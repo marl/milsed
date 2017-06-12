@@ -7,6 +7,7 @@ import sys
 from glob import glob
 import six
 import pickle
+import json
 
 import pandas as pd
 import keras as K
@@ -183,7 +184,7 @@ def construct_model(pump, alpha):
 
 def train(working, alpha, max_samples, duration, rate,
           batch_size, epochs, epoch_size, validation_size,
-          early_stopping, reduce_lr, seed):
+          early_stopping, reduce_lr, seed, version):
     '''
     Parameters
     ----------
@@ -274,11 +275,12 @@ def train(working, alpha, max_samples, duration, rate,
 
     # Store the model
     model_spec = K.utils.serialize_keras_object(model)
-    with open(os.path.join(OUTPUT_PATH, 'model_spec.pkl'), 'wb') as fd:
+    with open(os.path.join(OUTPUT_PATH, version, 'model_spec.pkl'),
+              'wb') as fd:
         pickle.dump(model_spec, fd)
 
     # Construct the weight path
-    weight_path = os.path.join(OUTPUT_PATH, 'model.h5')
+    weight_path = os.path.join(OUTPUT_PATH, version, 'model.h5')
 
     # Build the callbacks
     cb = []
@@ -307,8 +309,18 @@ if __name__ == '__main__':
 
     smkdirs(OUTPUT_PATH)
 
+    version = milsed.utils.increment_version(os.path.join(OUTPUT_PATH,
+                                                          'version.txt'))
+    smkdirs(os.path.join(OUTPUT_PATH, version))
+
     print('{}: training'.format(__doc__))
+    print('Model version: {}'.format(version))
     print(params)
+
+    # Store the parameters to disk
+    with open(os.path.join(OUTPUT_PATH, version, 'params.json'),
+              'w') as fd:
+        json.dump(vars(params), fd, indent=4)
 
     train(params.working,
           params.max_samples, params.duration,
@@ -318,4 +330,5 @@ if __name__ == '__main__':
           params.validation_size,
           params.early_stopping,
           params.reduce_lr,
-          params.seed)
+          params.seed,
+          version)
