@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''CREMA utilities'''
+'''MILSED utilities'''
 
 import os
 import h5py
