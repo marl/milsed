@@ -158,7 +158,8 @@ def construct_model(pump, alpha):
     conv1 = K.layers.Convolution1D(64, 3,
                                    padding='same',
                                    activation='relu',
-                                   data_format='channels_last')(x_sq)
+                                   kernel_initializer='he_unifrom')(x_sq)
+                                   # data_format='channels_last')(x_sq)
 
     # First recurrent layer: a 128-dim bidirectional gru
     rnn1 = K.layers.Bidirectional(K.layers.GRU(128,
