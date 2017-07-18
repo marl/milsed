@@ -44,9 +44,9 @@ def process_arguments(args):
     return parser.parse_args(args)
 
 
-def augment(afile, jfile, deformer, outpath, audio_ext, jams_ext):
+def augment(afile, jfile, deformer, outpath, audio_ext, jams_ext, sr=44100):
     '''Run the data through muda'''
-    jam = muda.load_jam_audio(jfile, afile)
+    jam = muda.load_jam_audio(jfile, afile, sr=sr)
 
     base = milsed.utils.base(afile)
 
