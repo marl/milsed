@@ -327,12 +327,16 @@ if __name__ == '__main__':
         json.dump(vars(params), fd, indent=4)
 
     train(params.working,
-          params.max_samples, params.duration,
+          params.alpha,
+          params.max_samples,
+          params.duration,
           params.rate,
           params.batch_size,
-          params.epochs, params.epoch_size,
+          params.epochs,
+          params.epoch_size,
           params.validation_size,
           params.early_stopping,
           params.reduce_lr,
           params.seed,
           version)
+
