@@ -223,6 +223,9 @@ def train(working, alpha, max_samples, duration, rate,
 
     seed : int
         Random seed
+
+    version: str
+        Identifier for current model version (model ID)
     '''
 
     # Load the pump
@@ -236,7 +239,7 @@ def train(working, alpha, max_samples, duration, rate,
     model, inputs, outputs = construct_model(pump, alpha)
 
     # Load the training data
-    idx_train_ = pd.read_json('index_train.json')
+    idx_train_ = pd.read_json(os.path.join(OUTPUT_PATH, 'index_train.json'))
 
     # Split the training data into train and validation
     splitter_tv = ShuffleSplit(n_splits=1, test_size=0.25,
