@@ -302,10 +302,14 @@ def train(working, alpha, max_samples, duration, rate,
                                         monitor=monitor))
 
     # Fit the model
-    model.fit_generator(gen_train, epoch_size, epochs,
-                        validation_data=gen_val,
-                        validation_steps=validation_size,
-                        callbacks=cb)
+    history = model.fit_generator(gen_train, epoch_size, epochs,
+                                  validation_data=gen_val,
+                                  validation_steps=validation_size,
+                                  callbacks=cb)
+
+    # Save history
+    with open(os.path.join(OUTPUT_PATH, version, 'history.pkl'), 'wb') as fd:
+        pickle.dump(history.history, fd)
 
 
 if __name__ == '__main__':
