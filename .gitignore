@@ -1,1 +1,6 @@
 .idea/*
+jobs/*.out
+milsed/__pycache__/*
+milsed.egg-info/*
+models/__pycache__/*
+notebooks/.ipynb_checkpoints/*
