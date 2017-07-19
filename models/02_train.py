@@ -252,7 +252,7 @@ def train(working, alpha, max_samples, duration, rate,
 
     gen_train = data_generator(working,
                                idx_train['id'].values, sampler, epoch_size,
-                               augment=True,
+                               augment=False,
                                lam=rate,
                                batch_size=batch_size,
                                revive=True,
@@ -320,6 +320,11 @@ def train(working, alpha, max_samples, duration, rate,
         # pickle.dump(history.history, fd)
     with open(os.path.join(OUTPUT_PATH, version, 'history.json'), 'wb') as fd:
         json.dump(history.history, fd, indent=2)
+
+
+def predict(model):
+
+    # Create data generator for test data
 
 
 if __name__ == '__main__':
