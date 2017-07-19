@@ -258,7 +258,7 @@ def train(working, alpha, max_samples, duration, rate,
                                revive=True,
                                random_state=seed)
 
-    gen_train = keras_tuples(gen_train(), inputs=inputs, outputs=outputs)
+    gen_train = keras_tuples(gen_train(), inputs=inputs, outputs='static/tags')
 
     gen_val = data_generator(working,
                              idx_val['id'].values, sampler, len(idx_val),
@@ -267,7 +267,7 @@ def train(working, alpha, max_samples, duration, rate,
                              revive=True,
                              random_state=seed)
 
-    gen_val = keras_tuples(gen_val(), inputs=inputs, outputs=outputs)
+    gen_val = keras_tuples(gen_val(), inputs=inputs, outputs='static/tags')
 
     loss = {'static/tags': 'binary_crossentropy'}
 
