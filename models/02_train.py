@@ -278,10 +278,18 @@ def train(working, alpha, max_samples, duration, rate,
     model.compile(K.optimizers.Adam(), loss=loss, metrics=metrics)
 
     # Store the model
+
+    # save the model object
     model_spec = K.utils.serialize_keras_object(model)
     with open(os.path.join(OUTPUT_PATH, version, 'model_spec.pkl'),
               'wb') as fd:
         pickle.dump(model_spec, fd)
+
+    # save the model definition
+    modeljsonfile = os.path.join(OUTPUT_PATH, version, 'model.json')
+    model_json = model.to_json()
+    with open(modeljsonfile, 'w') as json_file:
+        json.dump(model_json, json_file, indent=2)
 
     # Construct the weight path
     weight_path = os.path.join(OUTPUT_PATH, version, 'model.h5')
@@ -308,8 +316,10 @@ def train(working, alpha, max_samples, duration, rate,
                                   callbacks=cb)
 
     # Save history
-    with open(os.path.join(OUTPUT_PATH, version, 'history.pkl'), 'wb') as fd:
-        pickle.dump(history.history, fd)
+    # with open(os.path.join(OUTPUT_PATH, version, 'history.pkl'), 'wb') as fd:
+        # pickle.dump(history.history, fd)
+    with open(os.path.join(OUTPUT_PATH, version, 'history.json'), 'wb') as fd:
+        json.dump(history.history, fd, indent=2)
 
 
 if __name__ == '__main__':
