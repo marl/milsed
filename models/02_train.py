@@ -185,7 +185,7 @@ def construct_model(pump, alpha):
 
 def train(working, alpha, max_samples, duration, rate,
           batch_size, epochs, epoch_size, validation_size,
-          early_stopping, reduce_lr, seed, version):
+          early_stopping, reduce_lr, seed, train_streamers, version):
     '''
     Parameters
     ----------
@@ -251,7 +251,7 @@ def train(working, alpha, max_samples, duration, rate,
     idx_val = idx_train_.iloc[val]
 
     gen_train = data_generator(working,
-                               idx_train['id'].values, sampler, epoch_size,
+                               idx_train['id'].values, sampler, train_streamers,
                                augment=False,
                                lam=rate,
                                batch_size=batch_size,
@@ -361,5 +361,6 @@ if __name__ == '__main__':
           params.early_stopping,
           params.reduce_lr,
           params.seed,
+          params.train_streamers,
           version)
 
