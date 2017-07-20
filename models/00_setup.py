@@ -61,11 +61,8 @@ def make_muda(n_semitones):
     '''Construct a MUDA pitch shifter'''
 
     tones = []
-    for n in range(n_semitones+1):
-        if n==0:
-            tones.extend([0])
-        else:
-            tones.extend([-n, n])
+    for n in range(1, n_semitones+1):
+        tones.extend([-n, n])
 
     shifter = muda.deformers.PitchShift(n_semitones=tones)
 
