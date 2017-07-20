@@ -6,10 +6,23 @@ from keras.engine.topology import Layer
 
 class SoftMaxPool(Layer):
     '''
-    Keras softmax pooling layer
+    Keras softmax pooling layer.
     '''
 
     def __init__(self, axis=0, alpha=1.0, **kwargs):
+        '''
+
+        Parameters
+        ----------
+        axis : int
+            Axis along which to perform the pooling. By default 0
+            (should be time).
+        alpha : float
+            alpha = 1: softmax pooling
+            alpha = 0: mean pooling
+            alpha = large: converges to max pooling
+        kwargs
+        '''
         super(SoftMaxPool, self).__init__(**kwargs)
 
         self.axis = axis
