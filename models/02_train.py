@@ -270,15 +270,12 @@ def train(working, alpha, max_samples, duration, rate,
     gen_val = keras_tuples(gen_val(), inputs=inputs, outputs='static/tags')
 
     loss = {'static/tags': 'binary_crossentropy'}
-
     metrics = {'static/tags': 'accuracy'}
-
     monitor = 'val_loss'
 
     model.compile(K.optimizers.Adam(), loss=loss, metrics=metrics)
 
     # Store the model
-
     # save the model object
     model_spec = K.utils.serialize_keras_object(model)
     with open(os.path.join(OUTPUT_PATH, version, 'model_spec.pkl'),
@@ -322,10 +319,17 @@ def train(working, alpha, max_samples, duration, rate,
         json.dump(history.history, fd, indent=2)
 
 
-def predict(model):
-
-    # Create data generator for test data
-
+# def predict(working, model, inputs, outputs):
+#
+#     # Create data generator for test data
+#     gen_test = data_generator(working,
+#                               idx_train['id'].values, sampler, epoch_size,
+#                               augment=False,
+#                               lam=rate,
+#                               batch_size=batch_size,
+#                               revive=False,
+#                               random_state=seed)
+#     gen_test = keras_tuples(gen_test(), inputs=inputs, outputs=outputs)
 
 if __name__ == '__main__':
     params = process_arguments(sys.argv[1:])
