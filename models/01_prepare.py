@@ -18,23 +18,23 @@ import milsed.utils
 OUTPUT_PATH = 'resources'
 
 
-DCASE_CLASSES = ['Train horn',
-                 'Air horn, truck horn',
-                 'Car alarm',
-                 'Reversing beeps',
+DCASE_CLASSES = ['Air horn, truck horn',
                  'Ambulance (siren)',
-                 'Police car (siren)',
-                 'Fire engine, fire truck (siren)',
-                 'Civil defense siren',
-                 'Screaming',
                  'Bicycle',
-                 'Skateboard',
-                 'Car',
-                 'Car passing by',
                  'Bus',
-                 'Truck',
+                 'Car',
+                 'Car alarm',
+                 'Car passing by',
+                 'Civil defense siren',
+                 'Fire engine, fire truck (siren)',
                  'Motorcycle',
-                 'Train']
+                 'Police car (siren)',
+                 'Reversing beeps',
+                 'Screaming',
+                 'Skateboard',
+                 'Train',
+                 'Train horn',
+                 'Truck']
 
 
 def process_arguments(args):
