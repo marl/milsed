@@ -64,6 +64,9 @@ def process_arguments(args):
                         default=None,
                         help='Path for augmented data (optional)')
 
+    parser.add_argument('--tqdm', dest='tqdm', action='store_const',
+                        const=True, default=False)
+
     parser.add_argument('input_path', type=str,
                         help='Path for directory containing (audio, jams)')
 
@@ -115,16 +118,19 @@ if __name__ == '__main__':
                      params.n_fft,
                      params.n_mels)
 
-    stream = tqdm(milsed.utils.get_ann_audio(params.input_path),
-                  desc='Converting training data')
+    stream = milsed.utils.get_ann_audio(params.input_path)
+    if params.tqdm:
+        stream = tqdm(stream, desc='Converting training data')
+
     Parallel(n_jobs=params.n_jobs)(delayed(convert)(aud, ann,
                                                     pump,
                                                     params.output_path)
                                    for aud, ann in stream)
 
     if params.augment_path:
-        stream = tqdm(milsed.utils.get_ann_audio(params.augment_path),
-                      desc='Converting augmented data')
+        stream = milsed.utils.get_ann_audio(params.augment_path)
+        if tqdm:
+            stream = tqdm(stream, desc='Converting augmented data')
         Parallel(n_jobs=params.n_jobs)(delayed(convert)(aud, ann,
                                                         pump,
                                                         params.output_path)
