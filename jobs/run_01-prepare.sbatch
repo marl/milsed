@@ -3,7 +3,7 @@
 #SBATCH --job-name=01prepare
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=10
-#SBATCH --mem=4GB
+#SBATCH --mem=30GB
 #SBATCH --time=12:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=justin.salamon@gmail.com
