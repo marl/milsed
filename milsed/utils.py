@@ -5,6 +5,8 @@ import os
 import subprocess
 import h5py
 from librosa.util import find_files
+import jams
+import pandas as pd
 
 
 def save_h5(filename, **kwargs):
@@ -168,3 +170,51 @@ def increment_version(filename):
         fd.write(version)
 
     return version
+
+
+def create_dcase_jam(fid, labelfile, duration=10.0, weak=False):
+
+    # Create jam
+    jam = jams.JAMS()
+
+    # Create annotation
+    ann = jams.Annotation('tag_open')
+    # duration = sox.file_info.duration(audiofile)
+    ann.duration = duration
+
+    # Get labels from CSV file
+    fid_ = fid[1:]
+    labeldf = pd.read_csv(labelfile, header=None, sep='\t')
+    labeldf.columns = ['filename', 'start_time', 'end_time', 'label']
+    labeldf = labeldf[labeldf['filename'].str.contains(fid_)]
+    assert len(labeldf) > 0
+
+    # Add tag for each label
+    for idx, row in labeldf:
+        if weak:
+            ann.append(time=0, duration=duration, value=row.label,
+                       confidence=1.0)
+        else:
+            ann.append(time=row.start_time,
+                       duration=(row.end_time - row.start_time),
+                       value=row.label,
+                       confidence=1.0)
+
+    # Fill file metadata
+    jam.file_metadata.title = fid
+    jam.file_metadata.release = '1.0'
+    jam.file_metadata.duration = duration
+    jam.file_metadata.artist = ''
+
+    # Fill annotation metadata
+    ann.annotation_metadata.version = '1.0'
+    ann.annotation_metadata.corpus = 'DCASE 2017 Task 4'
+    ann.annotation_metadata.data_source = 'AudioSet'
+    ann.annotation_metadata.annotator = 'reference'
+
+    # Add annotation to jam
+    jam.annotations.append(ann)
+
+    # Return jam
+    return jam
+
