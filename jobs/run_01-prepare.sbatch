@@ -18,5 +18,5 @@ module load sox/intel/14.4.2
 module load rubberband/intel/1.8.1
 module load ffmpeg/intel/3.2.2
 
-python 01_prepare.py /beegfs/js7561/datasets/dcase2017/task4_official/combined/audio_silence /beegfs/js7561/datasets/dcase2017/task4_official/combined/features_silence --sample-rate 44100 --hop-length 1024 --nfft 2048 --nmels 128 --jobs 10
+python 01_prepare.py /beegfs/js7561/datasets/dcase2017/task4_official/combined/audio_silence /beegfs/js7561/datasets/dcase2017/task4_official/combined/features_silence --sample-rate 44100 --hop-length 1024 --nfft 2048 --nmels 128 --jobs 10 --loadpump
 
