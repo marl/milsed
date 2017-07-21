@@ -380,14 +380,14 @@ def score_model(pump, model, idx, pumpfolder, labelfile, duration, version):
 
         # add basic annotation metadata
         ann_s.annotation_metadata.version = version
-        ann_s.annotation_metadata.annotator = 'static'
+        ann_s.annotation_metadata.annotation_tools = 'static'
         ann_d.annotation_metadata.version = version
-        ann_d.annotation_metadata.annotator = 'dynamic'
+        ann_d.annotation_metadata.annotation_tools = 'dynamic'
 
         # Create reference jams annotation
         ref_jam = milsed.utils.create_dcase_jam(fid, labelfile, duration=10.0,
                                                 weak=False)
-        ann_r = ref_jam.annotations.search(annotator='reference')[0]
+        ann_r = ref_jam.annotations.search(annotation_tools='reference')[0]
 
         # Add annotations to jams
         jam = jams.JAMS()

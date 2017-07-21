@@ -210,7 +210,7 @@ def create_dcase_jam(fid, labelfile, duration=10.0, weak=False):
     ann.annotation_metadata.version = '1.0'
     ann.annotation_metadata.corpus = 'DCASE 2017 Task 4'
     ann.annotation_metadata.data_source = 'AudioSet'
-    ann.annotation_metadata.annotator = 'reference'
+    ann.annotation_metadata.annotation_tools = 'reference'
 
     # Add annotation to jam
     jam.annotations.append(ann)
