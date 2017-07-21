@@ -190,7 +190,7 @@ def create_dcase_jam(fid, labelfile, duration=10.0, weak=False):
     assert len(labeldf) > 0
 
     # Add tag for each label
-    for idx, row in labeldf:
+    for idx, row in labeldf.iterrows():
         if weak:
             ann.append(time=0, duration=duration, value=row.label,
                        confidence=1.0)
