@@ -19,6 +19,9 @@ import librosa
 import milsed.utils
 from jams.util import smkdirs
 
+from tqdm import tqdm
+import jams
+
 OUTPUT_PATH = 'resources'
 
 
@@ -319,17 +322,28 @@ def train(working, alpha, max_samples, duration, rate,
         json.dump(history.history, fd, indent=2)
 
 
-# def predict(working, model, inputs, outputs):
+# def score_model(pump, model, idx, audiofolder, pumpfolder):
 #
-#     # Create data generator for test data
-#     gen_test = data_generator(working,
-#                               idx_train['id'].values, sampler, epoch_size,
-#                               augment=False,
-#                               lam=rate,
-#                               batch_size=batch_size,
-#                               revive=False,
-#                               random_state=seed)
-#     gen_test = keras_tuples(gen_test(), inputs=inputs, outputs=outputs)
+#     results = {}
+#
+#     # Predict on test, file by file, and compute eval scores
+#     for fid in tqdm(idx, desc='Evaluating the model'):
+#
+#         jamfile = os.path.join(audiofolder, fid + '.jams')
+#         pumpfile = os.path.join(pumpfolder, fid + '.h5')
+#         jam = jams.load(jamfile)
+#         datum = milsed.utils.load_h5(pumpfile)['mel/mag']
+#
+#         output_d, output_s = model.predict(datum)
+#
+#         ann = pump['chord_tag'].inverse(output)
+#         results[item] = jams.eval.chord(jam.annotations['chord', 0], ann)
+#
+#     return pd.DataFrame.from_dict(results, orient='index')[['root', 'thirds',
+#                                                             'triads', 'tetrads',
+#                                                             'mirex', 'majmin',
+#                                                             'sevenths']]
+
 
 if __name__ == '__main__':
     params = process_arguments(sys.argv[1:])
