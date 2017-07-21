@@ -409,11 +409,14 @@ def score_model(pump, model, idx, pumpfolder, labelfile, duration, version):
             ref_list.append({'event_onset': event.time,
                              'event_offset': event.time + event.duration,
                              'event_label': event.value})
+        ref_list = sed_eval.util.event_list.EventList(ref_list)
+
         est_list = []
         for event in ann_d.data:
             est_list.append({'event_onset': event.time,
                              'event_offset': event.time + event.duration,
                              'event_label': event.value})
+        est_list = sed_eval.util.event_list.EventList(est_list)
 
         segment_based_metrics.evaluate(ref_list, est_list)
 
