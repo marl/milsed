@@ -75,6 +75,9 @@ def process_arguments(args):
                         default=10,
                         help='# epochs before reducing learning rate')
 
+    parser.add_argument('--augment', dest='augment', action='store_const',
+                        const=True, default=False)
+
     parser.add_argument(dest='working', type=str,
                         help='Path to working directory')
 
@@ -188,7 +191,7 @@ def construct_model(pump, alpha):
 
 def train(working, alpha, max_samples, duration, rate,
           batch_size, epochs, epoch_size, validation_size,
-          early_stopping, reduce_lr, seed, train_streamers, version):
+          early_stopping, reduce_lr, seed, train_streamers, augment, version):
     '''
     Parameters
     ----------
@@ -228,6 +231,12 @@ def train(working, alpha, max_samples, duration, rate,
     seed : int
         Random seed
 
+    train_streamers : int
+        Number of streamers to keep alive simultaneously during training
+
+    augment : bool
+        Include augmented data during training
+
     version: str
         Identifier for current model version (model ID)
     '''
@@ -255,7 +264,7 @@ def train(working, alpha, max_samples, duration, rate,
 
     gen_train = data_generator(working,
                                idx_train['id'].values, sampler, train_streamers,
-                               augment=False,
+                               augment=augment,
                                lam=rate,
                                batch_size=batch_size,
                                revive=True,
@@ -376,5 +385,6 @@ if __name__ == '__main__':
           params.reduce_lr,
           params.seed,
           params.train_streamers,
+          params.augment,
           version)
 
