@@ -70,6 +70,9 @@ def process_arguments(args):
     parser.add_argument('--overwrite', dest='overwrite', action='store_const',
                         const=True, default=False)
 
+    parser.add_argument('--loadpump', dest='loadpump', action='store_const',
+                        const=True, default=False)
+
     parser.add_argument('input_path', type=str,
                         help='Path for directory containing (audio, jams)')
 
@@ -116,10 +119,15 @@ if __name__ == '__main__':
 
     print('{}: pre-processing'.format(__doc__))
     print(params)
-    pump = make_pump(params.sr,
-                     params.hop_length,
-                     params.n_fft,
-                     params.n_mels)
+    if params.loadpump:
+        pumpfile = os.path.join(OUTPUT_PATH, 'pump.pkl')
+        with open(pumpfile, 'rb') as fp:
+            pump = pickle.load(fp)
+    else:
+        pump = make_pump(params.sr,
+                         params.hop_length,
+                         params.n_fft,
+                         params.n_mels)
 
     stream = milsed.utils.get_ann_audio(params.input_path)
     if not params.overwrite:
