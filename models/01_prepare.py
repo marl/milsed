@@ -67,6 +67,9 @@ def process_arguments(args):
     parser.add_argument('--tqdm', dest='tqdm', action='store_const',
                         const=True, default=False)
 
+    parser.add_argument('--overwrite', dest='overwrite', action='store_const',
+                        const=True, default=False)
+
     parser.add_argument('input_path', type=str,
                         help='Path for directory containing (audio, jams)')
 
@@ -119,6 +122,15 @@ if __name__ == '__main__':
                      params.n_mels)
 
     stream = milsed.utils.get_ann_audio(params.input_path)
+    if not params.overwrite:
+        missing_stream = []
+        for pair in stream:
+            basename = milsed.utils.base(pair[0])
+            pumpfile = os.path.join(params.output_path, basename + '.h5')
+            if not os.path.isfile(pumpfile):
+                missing_stream.append(pair)
+        stream = missing_stream
+
     if params.tqdm:
         stream = tqdm(stream, desc='Converting training data')
 
@@ -128,7 +140,17 @@ if __name__ == '__main__':
                                    for aud, ann in stream)
 
     if params.augment_path:
+
         stream = milsed.utils.get_ann_audio(params.augment_path)
+        if not params.overwrite:
+            missing_stream = []
+            for pair in stream:
+                basename = milsed.utils.base(pair[0])
+                pumpfile = os.path.join(params.output_path, basename + '.h5')
+                if not os.path.isfile(pumpfile):
+                    missing_stream.append(pair)
+            stream = missing_stream
+
         if tqdm:
             stream = tqdm(stream, desc='Converting augmented data')
         Parallel(n_jobs=params.n_jobs)(delayed(convert)(aud, ann,
