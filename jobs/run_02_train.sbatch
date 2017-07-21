@@ -21,5 +21,5 @@ module load rubberband/intel/1.8.1
 module load cuda/8.0.44
 module load cudnn/8.0v5.1
 
-python 02_train.py /beegfs/js7561/datasets/dcase2017/task4_official/train/features_silence/ --max_samples 1
+python 02_train.py /beegfs/js7561/datasets/dcase2017/task4_official/train/features_silence/
 
