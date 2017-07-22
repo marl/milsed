@@ -19,6 +19,7 @@ import pescador
 import librosa
 import milsed.utils
 from jams.util import smkdirs
+from milsed.models import MODELS
 
 from tqdm import tqdm
 import jams
@@ -86,6 +87,9 @@ def process_arguments(args):
     parser.add_argument('--verbose', dest='verbose', action='store_const',
                         const=True, default=False,
                         help='Call keras fit with verbose mode (1)')
+
+    parser.add_argument(dest='modelname', type=str,
+                        help='Name of model to train')
 
     parser.add_argument(dest='working', type=str,
                         help='Path to working directory')
@@ -159,56 +163,16 @@ def keras_tuples(gen, inputs=None, outputs=None):
                        [datum[o] for o in outputs])
 
 
-def construct_model(pump, alpha):
-
-    model_inputs = ['mel/mag']
-
-    # Build the input layer
-    layers = pump.layers()
-
-    x_mag = layers['mel/mag']
-
-    # Apply batch normalization
-    x_bn = K.layers.BatchNormalization()(x_mag)
-
-    x_sq = milsed.layers.SqueezeLayer()(x_bn)
-
-    # First convolutional filter: a single 3-frame filters
-    conv1 = K.layers.Convolution1D(64, 3,
-                                   padding='same',
-                                   activation='relu',
-                                   kernel_initializer='he_uniform')(x_sq)
-                                   # data_format='channels_last')(x_sq)
-
-    # First recurrent layer: a 128-dim bidirectional gru
-    rnn1 = K.layers.Bidirectional(K.layers.GRU(128,
-                                               return_sequences=True))(conv1)
-
-    n_classes = pump.fields['static/tags'].shape[0]
-
-    p0 = K.layers.Dense(n_classes, activation='sigmoid')
-
-    p_dynamic = K.layers.TimeDistributed(p0, name='dynamic/tags')(rnn1)
-
-    p_static = milsed.layers.SoftMaxPool(alpha=alpha,
-                                         axis=1,
-                                         name='static/tags')(p_dynamic)
-
-    model = K.models.Model([x_mag],
-                           [p_dynamic, p_static])
-
-    model_outputs = ['dynamic/tags', 'static/tags']
-
-    return model, model_inputs, model_outputs
-
-
-def train(working, strong_label_file, alpha, max_samples, duration, rate,
+def train(modelname, working, strong_label_file, alpha, max_samples, duration, rate,
           batch_size, epochs, epoch_size, validation_size,
           early_stopping, reduce_lr, seed, train_streamers, augment,
           verbose, version):
     '''
     Parameters
     ----------
+    modelname : str
+        name of the model to train
+
     working : str
         directory that contains the experiment data (h5)
 
@@ -269,6 +233,7 @@ def train(working, strong_label_file, alpha, max_samples, duration, rate,
     sampler = make_sampler(max_samples, duration, pump, seed)
 
     # Build the model
+    construct_model = MODELS[modelname]
     model, inputs, outputs = construct_model(pump, alpha)
 
     # Load the training data
@@ -500,7 +465,8 @@ if __name__ == '__main__':
               'w') as fd:
         json.dump(vars(params), fd, indent=4)
 
-    train(params.working,
+    train(params.modelname,
+          params.working,
           params.strong_labels_file,
           params.alpha,
           params.max_samples,
