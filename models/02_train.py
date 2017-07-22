@@ -425,6 +425,7 @@ def score_model(pump, model, idx, pumpfolder, labelfile, duration, version):
     weak_pred = np.asarray(weak_pred)
     weak_pred = (weak_pred >= 0.5) * 1  # binarize
 
+    results['weak'] = {}
     results['weak']['f1_micro'] = sklearn.metrics.f1_score(
         weak_true, weak_pred, average='micro')
     results['weak']['f1_macro'] = sklearn.metrics.f1_score(
