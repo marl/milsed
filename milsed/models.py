@@ -56,7 +56,7 @@ def construct_crnn1d_smp(pump, alpha):
     conv1 = K.layers.Convolution1D(64, 3,
                                    padding='same',
                                    activation='relu',
-                                   kernel_initializer='he_uniform')(x_sq)
+                                   kernel_initializer='he_normal')(x_sq)
                                    # data_format='channels_last')(x_sq)
 
     # First recurrent layer: a 128-dim bidirectional gru
@@ -110,7 +110,7 @@ def construct_crnn1d_max(pump, alpha):
     conv1 = K.layers.Convolution1D(64, 3,
                                    padding='same',
                                    activation='relu',
-                                   kernel_initializer='he_uniform')(x_sq)
+                                   kernel_initializer='he_normal')(x_sq)
                                    # data_format='channels_last')(x_sq)
 
     # First recurrent layer: a 128-dim bidirectional gru
@@ -162,7 +162,7 @@ def construct_crnn1d_avg(pump, alpha):
     conv1 = K.layers.Convolution1D(64, 3,
                                    padding='same',
                                    activation='relu',
-                                   kernel_initializer='he_uniform')(x_sq)
+                                   kernel_initializer='he_normal')(x_sq)
                                    # data_format='channels_last')(x_sq)
 
     # First recurrent layer: a 128-dim bidirectional gru
@@ -214,7 +214,7 @@ def construct_cnn1d_smp(pump, alpha):
     conv1 = K.layers.Convolution1D(64, 3,
                                    padding='same',
                                    activation='relu',
-                                   kernel_initializer='he_uniform')(x_sq)
+                                   kernel_initializer='he_normal')(x_sq)
                                    # data_format='channels_last')(x_sq)
 
     n_classes = pump.fields['static/tags'].shape[0]
@@ -264,7 +264,7 @@ def construct_cnn1d_max(pump, alpha):
     conv1 = K.layers.Convolution1D(64, 3,
                                    padding='same',
                                    activation='relu',
-                                   kernel_initializer='he_uniform')(x_sq)
+                                   kernel_initializer='he_normal')(x_sq)
                                    # data_format='channels_last')(x_sq)
 
     n_classes = pump.fields['static/tags'].shape[0]
@@ -311,7 +311,7 @@ def construct_cnn1d_avg(pump, alpha):
     conv1 = K.layers.Convolution1D(64, 3,
                                    padding='same',
                                    activation='relu',
-                                   kernel_initializer='he_uniform')(x_sq)
+                                   kernel_initializer='he_normal')(x_sq)
                                    # data_format='channels_last')(x_sq)
 
     n_classes = pump.fields['static/tags'].shape[0]
