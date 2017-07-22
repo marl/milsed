@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=4GB
-#SBATCH --time=12:00:00
+#SBATCH --time=24:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=justin.salamon@gmail.com
 #SBATCH --output="02train-%j.out"
@@ -21,5 +21,5 @@ module load rubberband/intel/1.8.1
 module load cuda/8.0.44
 module load cudnn/8.0v5.1
 
-python 02_train.py cnn1d /beegfs/js7561/datasets/dcase2017/task4_official/combined/features_silence/ /beegfs/js7561/datasets/dcase2017/task4_official/combined/metadata/labels/groundtruth_strong_label_testing_set.csv
+python 02_train.py crnn1d_smp /beegfs/js7561/datasets/dcase2017/task4_official/combined/features_silence/ /beegfs/js7561/datasets/dcase2017/task4_official/combined/metadata/labels/groundtruth_strong_label_testing_set.csv
 
