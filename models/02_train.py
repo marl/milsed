@@ -85,6 +85,10 @@ def process_arguments(args):
     parser.add_argument(dest='working', type=str,
                         help='Path to working directory')
 
+    parser.add_argument(dest='strong_labels_file', type=str,
+                        help='Path to csv file containing strong labels for '
+                             'the test set.')
+
     return parser.parse_args(args)
 
 
@@ -193,7 +197,7 @@ def construct_model(pump, alpha):
     return model, model_inputs, model_outputs
 
 
-def train(working, alpha, max_samples, duration, rate,
+def train(working, strong_label_file, alpha, max_samples, duration, rate,
           batch_size, epochs, epoch_size, validation_size,
           early_stopping, reduce_lr, seed, train_streamers, augment, version):
     '''
@@ -201,6 +205,9 @@ def train(working, alpha, max_samples, duration, rate,
     ----------
     working : str
         directory that contains the experiment data (h5)
+
+    strong_label_file : str
+        path to CSV file containing strong labels for the test set
 
     alpha : float > 0
         Alpha parameter for softmax
@@ -334,8 +341,25 @@ def train(working, alpha, max_samples, duration, rate,
     with open(os.path.join(OUTPUT_PATH, version, 'history.json'), 'wb') as fd:
         json.dump(history.history, fd, indent=2)
 
+    # Evaluate model
 
-def score_model(pump, model, idx, pumpfolder, labelfile, duration, version):
+    # Load best params
+    model.load_weights(weight_path)
+    with open(os.path.join(OUTPUT_PATH, 'index_test.json'), 'r') as fp:
+        test_idx = json.load(fp)['id']
+
+    # Compute eval scores
+    results = score_model(pump, model, test_idx, working, strong_label_file,
+                          duration, version)
+
+    # Save results to disk
+    results_file = os.path.join(OUTPUT_PATH, version, 'results.json')
+    with open(results_file, 'w') as fp:
+        json.dump(results, fp, indent=2)
+
+
+def score_model(pump, model, idx, pumpfolder, labelfile, duration, version,
+                use_tqdm=False):
 
     results = {}
 
@@ -353,7 +377,10 @@ def score_model(pump, model, idx, pumpfolder, labelfile, duration, version):
         os.mkdir(pred_folder)
 
     # Predict on test, file by file, and compute eval scores
-    for fid in tqdm(idx, desc='Evaluating the model'):
+    if use_tqdm:
+        idx = tqdm(idx, desc='Evaluating the model')
+
+    for fid in idx:
 
         # Load test data
         pumpfile = os.path.join(pumpfolder, fid + '.h5')
@@ -460,6 +487,7 @@ if __name__ == '__main__':
         json.dump(vars(params), fd, indent=4)
 
     train(params.working,
+          params.strong_labels_file,
           params.alpha,
           params.max_samples,
           params.duration,
