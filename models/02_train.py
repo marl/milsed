@@ -345,7 +345,7 @@ def score_model(pump, model, idx, pumpfolder, labelfile, duration, version):
 
     # For computing strong (sed_eval) metrics
     segment_based_metrics = sed_eval.sound_event.SegmentBasedMetrics(
-        pump['static'].encoder.classes_, time_resolution=1.0)
+        pump['static'].encoder.classes_.tolist(), time_resolution=1.0)
 
     # Create folder for predictions
     pred_folder = os.path.join(OUTPUT_PATH, version, 'predictions')
@@ -366,7 +366,7 @@ def score_model(pump, model, idx, pumpfolder, labelfile, duration, version):
 
         # Append weak predictions
         weak_pred.append((output_s[0]>=0.5)*1)  # binarize
-        weak_true.append(ytrue)
+        weak_true.append(ytrue * 1)  # convert from bool to int
 
         # Build a dynamic task label transformer for the strong predictions
         dynamic_trans = pumpp.task.DynamicLabelTransformer(
