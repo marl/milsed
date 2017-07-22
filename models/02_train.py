@@ -315,10 +315,10 @@ def train(modelname, working, strong_label_file, alpha, max_samples, duration, r
                                   verbose=verbosity)
 
     # Save history
-    # with open(os.path.join(OUTPUT_PATH, version, 'history.pkl'), 'wb') as fd:
-        # pickle.dump(history.history, fd)
-    with open(os.path.join(OUTPUT_PATH, version, 'history.json'), 'w') as fd:
-        json.dump(history.history, fd, indent=2)
+    with open(os.path.join(OUTPUT_PATH, version, 'history.pkl'), 'wb') as fd:
+        pickle.dump(history.history, fd)
+    # with open(os.path.join(OUTPUT_PATH, version, 'history.json'), 'w') as fd:
+    #     json.dump(history.history, fd, indent=2)
 
     # Evaluate model
 
