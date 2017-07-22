@@ -187,7 +187,7 @@ def construct_crnn1d_avg(pump, alpha):
 
 def construct_cnn1d_smp(pump, alpha):
     '''
-    CNN with 1D conv encoder.
+    CNN with 1D conv encoder and softmax pooling.
 
     Parameters
     ----------
@@ -235,8 +235,104 @@ def construct_cnn1d_smp(pump, alpha):
     return model, model_inputs, model_outputs
 
 
+def construct_cnn1d_max(pump, alpha):
+    '''
+    CNN with 1D conv encoder and max pooling.
+
+    Parameters
+    ----------
+    pump
+    alpha
+
+    Returns
+    -------
+
+    '''
+    model_inputs = ['mel/mag']
+
+    # Build the input layer
+    layers = pump.layers()
+
+    x_mag = layers['mel/mag']
+
+    # Apply batch normalization
+    x_bn = K.layers.BatchNormalization()(x_mag)
+
+    x_sq = milsed.layers.SqueezeLayer()(x_bn)
+
+    # First convolutional filter: a single 3-frame filters
+    conv1 = K.layers.Convolution1D(64, 3,
+                                   padding='same',
+                                   activation='relu',
+                                   kernel_initializer='he_uniform')(x_sq)
+                                   # data_format='channels_last')(x_sq)
+
+    n_classes = pump.fields['static/tags'].shape[0]
+
+    p0 = K.layers.Dense(n_classes, activation='sigmoid')
+    p_dynamic = K.layers.TimeDistributed(p0, name='dynamic/tags')(conv1)
+
+    p_static = K.layers.GlobalMaxPooling1D(name='static/tags')(p_dynamic)
+
+    model = K.models.Model([x_mag],
+                           [p_dynamic, p_static])
+
+    model_outputs = ['dynamic/tags', 'static/tags']
+
+    return model, model_inputs, model_outputs
+
+
+def construct_cnn1d_avg(pump, alpha):
+    '''
+    CNN with 1D conv encoder and mean pooling.
+
+    Parameters
+    ----------
+    pump
+    alpha
+
+    Returns
+    -------
+
+    '''
+    model_inputs = ['mel/mag']
+
+    # Build the input layer
+    layers = pump.layers()
+
+    x_mag = layers['mel/mag']
+
+    # Apply batch normalization
+    x_bn = K.layers.BatchNormalization()(x_mag)
+
+    x_sq = milsed.layers.SqueezeLayer()(x_bn)
+
+    # First convolutional filter: a single 3-frame filters
+    conv1 = K.layers.Convolution1D(64, 3,
+                                   padding='same',
+                                   activation='relu',
+                                   kernel_initializer='he_uniform')(x_sq)
+                                   # data_format='channels_last')(x_sq)
+
+    n_classes = pump.fields['static/tags'].shape[0]
+
+    p0 = K.layers.Dense(n_classes, activation='sigmoid')
+    p_dynamic = K.layers.TimeDistributed(p0, name='dynamic/tags')(conv1)
+
+    p_static = K.layers.GlobalAveragePooling1D(name='static/tags')(p_dynamic)
+
+    model = K.models.Model([x_mag],
+                           [p_dynamic, p_static])
+
+    model_outputs = ['dynamic/tags', 'static/tags']
+
+    return model, model_inputs, model_outputs
+
+
 MODELS = {'crnn1d_smp': construct_crnn1d_smp,
           'crnn1d_max': construct_crnn1d_max,
           'crnn1d_avg': construct_crnn1d_avg,
-          'cnn1d_smp': construct_cnn1d_smp}
+          'cnn1d_smp': construct_cnn1d_smp,
+          'cnn1d_max': construct_cnn1d_max,
+          'cnn1d_avg': construct_cnn1d_avg}
 
