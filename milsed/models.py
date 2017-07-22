@@ -26,9 +26,6 @@ model_outputs
 import keras as K
 import milsed.layers
 
-MODELS = {'crnn1d': construct_crnn1d,
-          'cnn1d': construct_cnn1d}
-
 
 def construct_crnn1d(pump, alpha):
     '''
@@ -132,3 +129,8 @@ def construct_cnn1d(pump, alpha):
     model_outputs = ['dynamic/tags', 'static/tags']
 
     return model, model_inputs, model_outputs
+
+
+MODELS = {'crnn1d': construct_crnn1d,
+          'cnn1d': construct_cnn1d}
+
