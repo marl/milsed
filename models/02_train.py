@@ -80,7 +80,12 @@ def process_arguments(args):
                         help='# epochs before reducing learning rate')
 
     parser.add_argument('--augment', dest='augment', action='store_const',
-                        const=True, default=False)
+                        const=True, default=False,
+                        help='Use augmented data for training.')
+
+    parser.add_argument('--verbose', dest='verbose', action='store_const',
+                        const=True, default=False,
+                        help='Call keras fit with verbose mode (1)')
 
     parser.add_argument(dest='working', type=str,
                         help='Path to working directory')
@@ -199,7 +204,8 @@ def construct_model(pump, alpha):
 
 def train(working, strong_label_file, alpha, max_samples, duration, rate,
           batch_size, epochs, epoch_size, validation_size,
-          early_stopping, reduce_lr, seed, train_streamers, augment, version):
+          early_stopping, reduce_lr, seed, train_streamers, augment,
+          verbose, version):
     '''
     Parameters
     ----------
@@ -247,6 +253,9 @@ def train(working, strong_label_file, alpha, max_samples, duration, rate,
 
     augment : bool
         Include augmented data during training
+
+    verbose : bool
+        Verbose output during keras training.
 
     version: str
         Identifier for current model version (model ID)
@@ -330,10 +339,15 @@ def train(working, strong_label_file, alpha, max_samples, duration, rate,
                                         monitor=monitor))
 
     # Fit the model
+    if verbose:
+        verbosity = 1
+    else:
+        verbosity = 2
     history = model.fit_generator(gen_train, epoch_size, epochs,
                                   validation_data=gen_val,
                                   validation_steps=validation_size,
-                                  callbacks=cb)
+                                  callbacks=cb,
+                                  verbose=verbosity)
 
     # Save history
     # with open(os.path.join(OUTPUT_PATH, version, 'history.pkl'), 'wb') as fd:
@@ -501,5 +515,6 @@ if __name__ == '__main__':
           params.seed,
           params.train_streamers,
           params.augment,
+          params.verbose,
           version)
 
