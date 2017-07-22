@@ -21,5 +21,5 @@ module load rubberband/intel/1.8.1
 module load cuda/8.0.44
 module load cudnn/8.0v5.1
 
-python 02_train.py /beegfs/js7561/datasets/dcase2017/task4_official/train/features_silence/
+python 02_train.py /beegfs/js7561/datasets/dcase2017/task4_official/combined/features_silence/ /beegfs/js7561/datasets/dcase2017/task4_official/combined/metadata/labels/groundtruth_strong_label_testing_set.csv
 
