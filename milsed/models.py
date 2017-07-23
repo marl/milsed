@@ -358,7 +358,7 @@ def construct_crnn2d_smp(pump, alpha):
     conv1 = K.layers.Convolution2D(64, (3, 3),
                                    padding='same',
                                    activation='relu',
-                                   kernel_initializer='he_normal')(x_sq)
+                                   kernel_initializer='he_normal')(x_bn)
 
     bn2 = K.layers.BatchNormalization()(conv1)
 
