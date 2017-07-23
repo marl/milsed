@@ -352,7 +352,7 @@ def construct_crnn2d_smp(pump, alpha):
     # Apply batch normalization
     x_bn = K.layers.BatchNormalization()(x_mag)
 
-    x_sq = milsed.layers.SqueezeLayer()(x_bn)
+    # x_sq = milsed.layers.SqueezeLayer()(x_bn)
 
     # First convolutional filter: 3x3
     conv1 = K.layers.Convolution2D(64, (3, 3),
