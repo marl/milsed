@@ -432,14 +432,23 @@ def score_model(pump, model, idx, pumpfolder, labelfile, duration, version,
     weak_pred = (weak_pred >= 0.5) * 1  # binarize
 
     results['weak'] = {}
-    results['weak']['f1_micro'] = sklearn.metrics.f1_score(
-        weak_true, weak_pred, average='micro')
-    results['weak']['f1_macro'] = sklearn.metrics.f1_score(
-        weak_true, weak_pred, average='macro')
-    results['weak']['f1_weighted'] = sklearn.metrics.f1_score(
-        weak_true, weak_pred, average='weighted')
-    results['weak']['f1_samples'] = sklearn.metrics.f1_score(
-        weak_true, weak_pred, average='samples')
+    for avg in ['micro', 'macro', 'weighted', 'samples']:
+        results['weak'][avg] = {}
+        results['weak'][avg]['f1'] = sklearn.metrics.f1_score(
+            weak_true, weak_pred, average=avg)
+        results['weak'][avg]['precision'] = sklearn.metrics.precision(
+            weak_true, weak_pred, average=avg)
+        results['weak'][avg]['recall'] = sklearn.metrics.recall(
+            weak_true, weak_pred, average=avg)
+
+    # results['weak']['f1_micro'] = sklearn.metrics.f1_score(
+    #     weak_true, weak_pred, average='micro')
+    # results['weak']['f1_macro'] = sklearn.metrics.f1_score(
+    #     weak_true, weak_pred, average='macro')
+    # results['weak']['f1_weighted'] = sklearn.metrics.f1_score(
+    #     weak_true, weak_pred, average='weighted')
+    # results['weak']['f1_samples'] = sklearn.metrics.f1_score(
+    #     weak_true, weak_pred, average='samples')
 
     # Compute strong (sed_eval) metrics
     results['strong'] = segment_based_metrics.results()
