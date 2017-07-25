@@ -170,12 +170,14 @@ def report_results(OUTPUT_PATH, version):
     with open(history_file, 'rb') as fp:
         history = pickle.load(fp)
 
+    print('\nLoss:')
+
     # Visualize training history
     plt.plot(history['loss'], label='training loss')
     plt.plot(history['val_loss'], label='validation loss')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
-    plt.title(version)
+    plt.title('Loss: {}'.format(version))
     plt.grid()
     plt.legend()
     plt.show()
