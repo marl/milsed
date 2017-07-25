@@ -436,9 +436,9 @@ def score_model(pump, model, idx, pumpfolder, labelfile, duration, version,
         results['weak'][avg] = {}
         results['weak'][avg]['f1'] = sklearn.metrics.f1_score(
             weak_true, weak_pred, average=avg)
-        results['weak'][avg]['precision'] = sklearn.metrics.precision(
+        results['weak'][avg]['precision'] = sklearn.metrics.precision_score(
             weak_true, weak_pred, average=avg)
-        results['weak'][avg]['recall'] = sklearn.metrics.recall(
+        results['weak'][avg]['recall'] = sklearn.metrics.recall_score(
             weak_true, weak_pred, average=avg)
 
     # results['weak']['f1_micro'] = sklearn.metrics.f1_score(
