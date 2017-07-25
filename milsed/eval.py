@@ -8,6 +8,11 @@ import milsed
 import pumpp
 import numpy as np
 import jams
+import json
+import pickle
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 
 
 def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
@@ -127,4 +132,79 @@ def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
     results['strong'] = segment_based_metrics.results()
 
     return results
+
+
+def report_results(OUTPUT_PATH, version):
+    # Load results
+    resultsfolder = os.path.join(OUTPUT_PATH, version)
+    resultsfile = os.path.join(OUTPUT_PATH, version, 'results.json')
+    with open(resultsfile, 'r') as fp:
+        results = json.load(fp)
+
+    # report
+    print('{:<10}{}'.format('Model', version))
+    print('\nWeak:')
+    for metric in results['weak']['micro'].keys():
+        print('{:<10}{:.3f}'.format(metric, results['weak']['micro'][metric]))
+
+    print('\nStrong:')
+    strong_f = results['strong']['overall']['f_measure']
+    strong_e = results['strong']['overall']['error_rate']
+    print('{:<10}{:.3f}'.format('precision', strong_f['precision']))
+    print('{:<10}{:.3f}'.format('recall', strong_f['recall']))
+    print('{:<10}{:.3f}'.format('f1', strong_f['f_measure']))
+    print('{:<10}{:.3f}'.format('e_rate', strong_e['error_rate']))
+
+    print('\n{:<40}P\tR\tF\tE'.format('Strong per-class:'))
+    strong_c = results['strong']['class_wise']
+    for c in strong_c.keys():
+        r_c = strong_c[c]['f_measure']
+        r_ce = strong_c[c]['error_rate']
+        print('{:<40}{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}'.format(c, r_c['precision'],
+                                                            r_c['recall'],
+                                                            r_c['f_measure'],
+                                                            r_ce['error_rate']))
+
+    # Load training history
+    history_file = os.path.join(resultsfolder, 'history.pkl')
+    with open(history_file, 'rb') as fp:
+        history = pickle.load(fp)
+
+    # Visualize training history
+    plt.plot(history['loss'], label='training loss')
+    plt.plot(history['val_loss'], label='validation loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title(version)
+    plt.grid()
+    plt.legend()
+    plt.show()
+
+
+def compare_results(OUTPUT_PATH, versions):
+    results = {}
+
+    # Load results
+    for version in versions:
+        # Load results
+        resultsfolder = os.path.join(OUTPUT_PATH, version)
+        resultsfile = os.path.join(OUTPUT_PATH, version, 'results.json')
+        with open(resultsfile, 'r') as fp:
+            results[version] = json.load(fp)
+
+    # Convert to dataframe
+    df = pd.DataFrame(
+        columns=['Model', 'w_f1', 'w_p', 'w_r', 's_f1', 's_p', 's_r', 's_e'])
+    for k in results.keys():
+        r = results[k]
+        weak = r['weak']['micro']
+        strong_f = r['strong']['overall']['f_measure']
+        strong_e = r['strong']['overall']['error_rate']
+        data = (
+        k, weak['f1'], weak['precision'], weak['recall'], strong_f['f_measure'],
+        strong_f['precision'], strong_f['recall'], strong_e['error_rate'])
+        df.loc[len(df), :] = data
+
+    df = df.sort_values('Model')
+    return df
 
