@@ -369,15 +369,10 @@ def construct_crnn2d_smp(pump, alpha):
 
     bn3 = K.layers.BatchNormalization()(conv2)
 
-    conv3 = K.layers.Convolution2D(256, (3, 3),
-                                   padding='same',
-                                   activation='relu',
-                                   kernel_initializer='he_normal')(bn3)
-
     conv_sq = K.layers.Convolution2D(256, (1, 128),
                                      padding='valid',
                                      activation='relu',
-                                     kernel_initializer='he_normal')(conv3)
+                                     kernel_initializer='he_normal')(bn3)
 
     sq2 = milsed.layers.SqueezeLayer(axis=-2)(conv_sq)
 
