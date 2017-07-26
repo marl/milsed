@@ -225,6 +225,6 @@ def compare_results(OUTPUT_PATH, versions):
             strong_f['precision'], strong_f['recall'], strong_e['error_rate'])
         df.loc[len(df), :] = data
 
-    df = df.sort_values('Model')
+    df = df.sort_values('version')
     return df
 
