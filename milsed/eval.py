@@ -185,26 +185,44 @@ def report_results(OUTPUT_PATH, version):
 
 def compare_results(OUTPUT_PATH, versions):
     results = {}
+    params = {}
+    n_weights = {}
+
+    # Load pump
+    pump = pickle.load(
+        open(os.path.join(OUTPUT_PATH, 'pump.pkl', 'rb')))
 
     # Load results
     for version in versions:
+
         # Load results
-        resultsfolder = os.path.join(OUTPUT_PATH, version)
         resultsfile = os.path.join(OUTPUT_PATH, version, 'results.json')
         with open(resultsfile, 'r') as fp:
             results[version] = json.load(fp)
 
+        # Load params
+        paramsfile = os.path.join(OUTPUT_PATH, version, 'params.json')
+        with open(paramsfile, 'r') as fp:
+            params[version] = json.load(fp)
+
+        # Compute model size
+        model, _, _ = milsed.models.MODELS[params[version]['modelname']](
+            pump, params[version]['alpha'])
+        n_weights[version] = model.count_params()
+
     # Convert to dataframe
     df = pd.DataFrame(
-        columns=['Model', 'w_f1', 'w_p', 'w_r', 's_f1', 's_p', 's_r', 's_e'])
+        columns=['version', 'model', 'n_weights', 'w_f1', 'w_p', 'w_r', 's_f1',
+                 's_p', 's_r', 's_e'])
     for k in results.keys():
         r = results[k]
         weak = r['weak']['micro']
         strong_f = r['strong']['overall']['f_measure']
         strong_e = r['strong']['overall']['error_rate']
         data = (
-        k, weak['f1'], weak['precision'], weak['recall'], strong_f['f_measure'],
-        strong_f['precision'], strong_f['recall'], strong_e['error_rate'])
+            k, params[k]['modelname'], n_weights[k], weak['f1'],
+            weak['precision'], weak['recall'], strong_f['f_measure'],
+            strong_f['precision'], strong_f['recall'], strong_e['error_rate'])
         df.loc[len(df), :] = data
 
     df = df.sort_values('Model')
