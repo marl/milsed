@@ -190,7 +190,7 @@ def compare_results(OUTPUT_PATH, versions):
 
     # Load pump
     pump = pickle.load(
-        open(os.path.join(OUTPUT_PATH, 'pump.pkl', 'rb')))
+        open(os.path.join(OUTPUT_PATH, 'pump.pkl'), 'rb'))
 
     # Load results
     for version in versions:
