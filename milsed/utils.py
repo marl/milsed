@@ -7,6 +7,8 @@ import h5py
 from librosa.util import find_files
 import jams
 import pandas as pd
+import scipy
+import numpy as np
 
 
 def save_h5(filename, **kwargs):
@@ -217,4 +219,40 @@ def create_dcase_jam(fid, labelfile, duration=10.0, weak=False):
 
     # Return jam
     return jam
+
+
+def interpolate_prediction(sample_pred, duration, interp_size):
+    '''
+    Interpolate model predictions (likelihoods over time).
+
+    Given prediction for single sample 'sample_pred' with shape (1, n_frames,
+    n_classes), the time 'duration' (in seconds) the prediction corresponds to,
+    and the desired number of interpolated frames 'interp_size', this will
+    return interpolated predictions with shape (1, interp_size, n_classes).
+    Uses linear interpolation.
+
+    Parameters
+    ----------
+    sample_pred : np.ndarray
+        Prediction matrix (likeihood) with shape (1, n_frames, n_classes)
+    duration : float
+        Time duration in seconds that sample_pred corresponds to.
+    interp_size : int
+        Desired number of output frames in the interpolated prediction.
+
+    Returns
+    -------
+
+    '''
+    pred = sample_pred[0]
+    interp = scipy.interpolate.interp1d(
+        np.arange(pred.shape[0]) / float(pred.shape[0]) * duration, pred.T,
+        kind='linear', bounds_error=False, fill_value=pred[-1])
+
+    pred_interp = interp(np.arange(interp_size) / float(interp_size) * duration).T
+    pred_interp = np.expand_dims(pred_interp, 0)
+
+    return pred_interp
+
+
 
