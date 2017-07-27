@@ -483,10 +483,10 @@ def construct_cbhg_smp(pump, alpha):
     # x = Input(shape=(T, input_height), dtype='float32')
     model_inputs = ['mel/mag']
     layers = pump.layers()
-    x = layers['mel/mag']
-    input_height = x.shape[-2].value
+    x_input = layers['mel/mag']
+    input_height = x_input.shape[-2].value
 
-    x = milsed.layers.SqueezeLayer()(x)
+    x = milsed.layers.SqueezeLayer()(x_input)
 
     # Conv1D Bank
     Conv1D_filt_act = []
@@ -534,7 +534,7 @@ def construct_cbhg_smp(pump, alpha):
                                          name='static/tags')(p_dynamic)
 
     model_outputs = ['dynamic/tags', 'static/tags']
-    model = Model(inputs=[x], outputs=[p_dynamic, p_static])
+    model = Model(inputs=[x_input], outputs=[p_dynamic, p_static])
 
     return model, model_inputs, model_outputs
 
