@@ -48,6 +48,11 @@ def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
         # Predict
         output_d, output_s = model.predict(datum)
 
+        # If output is smaller in time dimension that input, interpolate
+        if output_d.shape[1] != datum.shape[1]:
+            output_d = milsed.utils.interpolate_prediction(output_d, duration,
+                                                           datum.shape[1])
+
         # Append weak predictions
         weak_pred.append((output_s[0]>=0.5)*1)  # binarize
         weak_true.append(ytrue * 1)  # convert from bool to int
