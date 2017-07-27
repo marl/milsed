@@ -486,6 +486,8 @@ def construct_cbhg_smp(pump, alpha):
     x = layers['mel/mag']
     input_height = x.shape[-2].value
 
+    x = milsed.layers.SqueezeLayer()(x)
+
     # Conv1D Bank
     Conv1D_filt_act = []
     for k in range(K_bank):
