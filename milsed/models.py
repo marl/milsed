@@ -26,6 +26,14 @@ model_outputs
 import keras as K
 import milsed.layers
 
+from keras.layers import Dense, GRU,Bidirectional, Lambda, Conv1D
+from keras.models import Model
+# from keras import backend as K
+from keras.layers.normalization import BatchNormalization
+from keras.layers.merge import Add, Multiply, Concatenate
+from keras.layers.pooling import MaxPooling1D
+from keras.layers.wrappers import TimeDistributed
+
 
 def construct_crnn1d_smp(pump, alpha):
     '''
@@ -454,6 +462,81 @@ def construct_cnn1d2_smp(pump, alpha):
 
     return model, model_inputs, model_outputs
 
+
+def construct_cbhg_smp(pump, alpha):
+    '''CBHG Module
+        input_height: non-time dim of input
+        gru_d: size of gru hidden unit
+        out_d: size of output
+        out_actication: activation func for output e.g. 'Relu' (str)
+        '''
+
+    subtract_ones = Lambda(lambda x: K.backend.ones_like(x) - x)
+
+    T = None
+    K_bank = 16
+    c = 128
+    gru_d = 128
+    out_activation = 'sigmoid'
+
+    # Build the input layer
+    # x = Input(shape=(T, input_height), dtype='float32')
+    model_inputs = ['mel/mag']
+    layers = pump.layers()
+    x = layers['mel/mag']
+    input_height = x.shape[-2].value
+
+    # Conv1D Bank
+    Conv1D_filt_act = []
+    for k in range(K_bank):
+        Conv1D_filt_act.append(K.layers.Conv1D(c, k + 1, padding='same')(x))
+
+    # Stack feature maps
+    y = Concatenate()(Conv1D_filt_act)
+    y = BatchNormalization()(y)
+
+    # Max pooling
+    y = MaxPooling1D(pool_size=2, strides=1, padding='same')(y)
+
+    # Conv1D Projection
+    y = Conv1D(input_height, 3, padding='same', activation='relu')(y)
+    y = Conv1D(input_height, 3, padding='same', activation='linear')(y)
+    y = BatchNormalization()(y)
+
+    y = Add()([y, x])
+
+    # Highway
+    y_h = TimeDistributed(Dense(input_height, activation='relu'))(y)
+    y_h = TimeDistributed(Dense(input_height, activation='relu'))(y_h)
+    y_h = TimeDistributed(Dense(input_height, activation='relu'))(y_h)
+    y_h = TimeDistributed(Dense(input_height, activation='relu'))(y_h)
+
+    t_h = TimeDistributed(Dense(input_height, activation='sigmoid'))(y)
+    t_h = TimeDistributed(Dense(input_height, activation='sigmoid'))(t_h)
+    t_h = TimeDistributed(Dense(input_height, activation='sigmoid'))(t_h)
+    t_h = TimeDistributed(Dense(input_height, activation='sigmoid'))(t_h)
+
+    y_h = Multiply()([y_h, t_h])
+    x_h = Multiply()([y, subtract_ones(t_h)])
+    y = Add()([y_h, x_h])
+
+    # Bi-directional GPU
+    n_classes = pump.fields['static/tags'].shape[0]
+    y = Bidirectional(GRU(gru_d, return_sequences=True), merge_mode='concat')(y)
+    p_dynamic = TimeDistributed(Dense(n_classes, activation=out_activation),
+                                name='dynamic/tags')(y)
+
+    # Weak labels with SMP
+    p_static = milsed.layers.SoftMaxPool(alpha=alpha,
+                                         axis=1,
+                                         name='static/tags')(p_dynamic)
+
+    model_outputs = ['dynamic/tags', 'static/tags']
+    model = Model(inputs=[x], outputs=[p_dynamic, p_static])
+
+    return model, model_inputs, model_outputs
+
+
 MODELS = {'crnn1d_smp': construct_crnn1d_smp,
           'crnn1d_max': construct_crnn1d_max,
           'crnn1d_avg': construct_crnn1d_avg,
@@ -461,5 +544,6 @@ MODELS = {'crnn1d_smp': construct_crnn1d_smp,
           'cnn1d_max': construct_cnn1d_max,
           'cnn1d_avg': construct_cnn1d_avg,
           'crnn2d_smp': construct_crnn2d_smp,
-          'cnn1d2_smp': construct_cnn1d2_smp}
+          'cnn1d2_smp': construct_cnn1d2_smp,
+          'cbhg_smp': construct_cbhg_smp}
 
