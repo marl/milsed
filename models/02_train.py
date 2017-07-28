@@ -228,13 +228,16 @@ def train(modelname, working, strong_label_file, alpha, max_samples, duration, r
     sampler = make_sampler(max_samples, duration, pump, seed)
 
     # Build the model
+    print('Build model...')
     construct_model = MODELS[modelname]
     model, inputs, outputs = construct_model(pump, alpha)
 
     # Load the training data
+    print('Load training data...')
     idx_train_ = pd.read_json(os.path.join(OUTPUT_PATH, 'index_train.json'))
 
     # Split the training data into train and validation
+
     splitter_tv = ShuffleSplit(n_splits=1, test_size=0.25,
                                random_state=seed)
     train, val = next(splitter_tv.split(idx_train_))
@@ -242,6 +245,7 @@ def train(modelname, working, strong_label_file, alpha, max_samples, duration, r
     idx_train = idx_train_.iloc[train]
     idx_val = idx_train_.iloc[val]
 
+    print('   Creating training generator...')
     gen_train = data_generator(working,
                                idx_train['id'].values, sampler, train_streamers,
                                augment=augment,
@@ -252,6 +256,7 @@ def train(modelname, working, strong_label_file, alpha, max_samples, duration, r
 
     gen_train = keras_tuples(gen_train(), inputs=inputs, outputs='static/tags')
 
+    print('   Creating validation generator...')
     gen_val = data_generator(working,
                              idx_val['id'].values, sampler, len(idx_val),
                              augment=False,
@@ -265,6 +270,7 @@ def train(modelname, working, strong_label_file, alpha, max_samples, duration, r
     metrics = {'static/tags': 'accuracy'}
     monitor = 'val_loss'
 
+    print('Compile model...')
     model.compile(K.optimizers.Adam(), loss=loss, metrics=metrics)
 
     # Store the model
@@ -299,6 +305,7 @@ def train(modelname, working, strong_label_file, alpha, max_samples, duration, r
                                         monitor=monitor))
 
     # Fit the model
+    print('Fit model...')
     if verbose:
         verbosity = 1
     else:
@@ -309,6 +316,7 @@ def train(modelname, working, strong_label_file, alpha, max_samples, duration, r
                                   callbacks=cb,
                                   verbose=verbosity)
 
+    print('Done training. Saving results to disk...')
     # Save history
     with open(os.path.join(OUTPUT_PATH, version, 'history.pkl'), 'wb') as fd:
         pickle.dump(history.history, fd)
@@ -316,7 +324,7 @@ def train(modelname, working, strong_label_file, alpha, max_samples, duration, r
     #     json.dump(history.history, fd, indent=2)
 
     # Evaluate model
-
+    print('Evaluate model...')
     # Load best params
     model.load_weights(weight_path)
     with open(os.path.join(OUTPUT_PATH, 'index_test.json'), 'r') as fp:
@@ -331,7 +339,7 @@ def train(modelname, working, strong_label_file, alpha, max_samples, duration, r
     with open(results_file, 'w') as fp:
         json.dump(results, fp, indent=2)
 
-
+    print('Done!')
 
 
 
