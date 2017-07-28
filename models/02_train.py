@@ -20,6 +20,7 @@ import milsed.utils
 from jams.util import smkdirs
 from milsed.models import MODELS
 from milsed.eval import score_model
+from tqdm import tqdm
 
 # OUTPUT_PATH = 'resources'
 OUTPUT_PATH = os.path.expanduser('~/dev/milsed/models/resources')
@@ -117,14 +118,14 @@ def data_generator(working, tracks, sampler, k, augment=True, batch_size=32,
 
     seeds = []
 
-    for track in tracks:
+    for track in tqdm(tracks):
         fname = os.path.join(working,
                              os.path.extsep.join([str(track), 'h5']))
         seeds.append(pescador.Streamer(data_sampler, fname, sampler))
 
         if augment:
-            for fname in sorted(glob(os.path.join(working,
-                                                  '{}.*.h5'.format(track)))):
+            for fname in tqdm(sorted(glob(os.path.join(working,
+                                                  '{}.*.h5'.format(track))))):
                 seeds.append(pescador.Streamer(data_sampler, fname, sampler))
 
     # Send it all to a mux
