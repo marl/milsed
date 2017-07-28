@@ -124,9 +124,12 @@ def data_generator(working, tracks, sampler, k, augment=True, batch_size=32,
         seeds.append(pescador.Streamer(data_sampler, fname, sampler))
 
         if augment:
-            for fname in sorted(glob(os.path.join(working,
-                                                  '{}.*.h5'.format(track)))):
-                seeds.append(pescador.Streamer(data_sampler, fname, sampler))
+            # for fname in sorted(glob(os.path.join(working,
+            #                                       '{}.*.h5'.format(track)))):
+            for aug in range(10):
+                augname = fname.replace('.h5', '.{:d}.h5'.format(aug))
+                # seeds.append(pescador.Streamer(data_sampler, fname, sampler))
+                seeds.append(pescador.Streamer(data_sampler, augname, sampler))
 
     # Send it all to a mux
     mux = pescador.Mux(seeds, k, **kwargs)
