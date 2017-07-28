@@ -43,7 +43,7 @@ def process_arguments(args):
                         help='Seed for the random number generator')
 
     parser.add_argument('--train-streamers', dest='train_streamers', type=int,
-                        default=2048,
+                        default=1024,
                         help='Number of active training streamers')
 
     parser.add_argument('--batch-size', dest='batch_size', type=int,
