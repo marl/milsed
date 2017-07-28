@@ -21,7 +21,8 @@ from jams.util import smkdirs
 from milsed.models import MODELS
 from milsed.eval import score_model
 
-OUTPUT_PATH = 'resources'
+# OUTPUT_PATH = 'resources'
+OUTPUT_PATH = os.path.expanduser('~/dev/milsed/models/resources')
 
 
 def process_arguments(args):
