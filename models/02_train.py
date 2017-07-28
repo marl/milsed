@@ -360,7 +360,7 @@ if __name__ == '__main__':
     print('Model version: {}'.format(version))
     print(params)
 
-    # Store the parameters to disk
+    # Store the parameters to disk (1)
     with open(os.path.join(OUTPUT_PATH, version, 'params.json'),
               'w') as fd:
         json.dump(vars(params), fd, indent=4)
