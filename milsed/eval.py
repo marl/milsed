@@ -163,7 +163,9 @@ def report_results(OUTPUT_PATH, version):
 
     print('\n{:<40}P\tR\tF\tE'.format('Strong per-class:'))
     strong_c = results['strong']['class_wise']
-    for c in strong_c.keys():
+    c_sorted = [c for c in strong_c.keys()]
+    c_sorted = sorted(c_sorted)
+    for c in c_sorted:
         r_c = strong_c[c]['f_measure']
         r_ce = strong_c[c]['error_rate']
         print('{:<40}{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}'.format(c, r_c['precision'],
