@@ -90,8 +90,8 @@ def process_arguments(args):
     parser.add_argument(dest='modelid', type=str,
                         help='Model ID number, e.g. "model001"')
 
-    parser.add_argument(dest='pid', type=str,
-                        help='HPC process (job) ID')
+    parser.add_argument(dest='jobid', type=str,
+                        help='HPC job ID')
 
     parser.add_argument(dest='working', type=str,
                         help='Path to working directory')
@@ -391,12 +391,12 @@ if __name__ == '__main__':
     curDir = os.path.abspath(os.path.join(curfilePath, os.pardir))
     parentDir = os.path.abspath(os.path.join(curDir, os.pardir))
     # Change to the repo directory
-    os.system('cd {:s}'.format(parentDir))
+    os.chdir(parentDir)
     # Get GIT version
     version = milsed.utils.increment_version(os.path.join(OUTPUT_PATH,
                                                           'version.txt'))
     # Return to working dir
-    os.system('cd {:s}'.format(cwd))
+    os.chdir(cwd)
 
     # Add version to params
     d = vars(params)
