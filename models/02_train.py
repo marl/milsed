@@ -90,6 +90,9 @@ def process_arguments(args):
     parser.add_argument(dest='modelid', type=str,
                         help='Model ID number, e.g. "model001"')
 
+    parser.add_argument(dest='pid', type=str,
+                        help='HPC process (job) ID')
+
     parser.add_argument(dest='working', type=str,
                         help='Path to working directory')
 
