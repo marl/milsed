@@ -69,7 +69,7 @@ def process_arguments(args):
                         help='Number of batches per validation')
 
     parser.add_argument('--early-stopping', dest='early_stopping', type=int,
-                        default=20,
+                        default=30,
                         help='# epochs without improvement to stop')
 
     parser.add_argument('--reduce-lr', dest='reduce_lr', type=int,
