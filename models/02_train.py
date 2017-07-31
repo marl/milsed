@@ -87,6 +87,9 @@ def process_arguments(args):
     parser.add_argument(dest='modelname', type=str,
                         help='Name of model to train')
 
+    parser.add_argument(dest='modelid', type=str,
+                        help='Model ID number, e.g. "model001"')
+
     parser.add_argument(dest='working', type=str,
                         help='Path to working directory')
 
@@ -182,7 +185,8 @@ class LossHistory(K.callbacks.Callback):
 
 
 
-def train(modelname, working, strong_label_file, alpha, max_samples, duration, rate,
+def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
+          duration, rate,
           batch_size, epochs, epoch_size, validation_size,
           early_stopping, reduce_lr, seed, train_streamers, augment,
           verbose, version):
@@ -191,6 +195,9 @@ def train(modelname, working, strong_label_file, alpha, max_samples, duration, r
     ----------
     modelname : str
         name of the model to train
+
+    modelid : str
+        Model identifier in the form <modelXXX>, e.g. model001
 
     working : str
         directory that contains the experiment data (h5)
@@ -241,7 +248,7 @@ def train(modelname, working, strong_label_file, alpha, max_samples, duration, r
         Verbose output during keras training.
 
     version: str
-        Identifier for current model version (model ID)
+        Git version number.
     '''
 
     # Load the pump
@@ -300,18 +307,18 @@ def train(modelname, working, strong_label_file, alpha, max_samples, duration, r
     # Store the model
     # save the model object
     model_spec = K.utils.serialize_keras_object(model)
-    with open(os.path.join(OUTPUT_PATH, version, 'model_spec.pkl'),
+    with open(os.path.join(OUTPUT_PATH, modelid, 'model_spec.pkl'),
               'wb') as fd:
         pickle.dump(model_spec, fd)
 
     # save the model definition
-    modeljsonfile = os.path.join(OUTPUT_PATH, version, 'model.json')
+    modeljsonfile = os.path.join(OUTPUT_PATH, modelid, 'model.json')
     model_json = model.to_json()
     with open(modeljsonfile, 'w') as json_file:
         json.dump(model_json, json_file, indent=2)
 
     # Construct the weight path
-    weight_path = os.path.join(OUTPUT_PATH, version, 'model.h5')
+    weight_path = os.path.join(OUTPUT_PATH, modelid, 'model.h5')
 
     # Build the callbacks
     cb = []
@@ -328,7 +335,7 @@ def train(modelname, working, strong_label_file, alpha, max_samples, duration, r
                                         verbose=1,
                                         monitor=monitor))
 
-    history_checkpoint = os.path.join(OUTPUT_PATH, version,
+    history_checkpoint = os.path.join(OUTPUT_PATH, modelid,
                                       'history_checkpoint.pkl')
     cb.append(LossHistory(history_checkpoint))
 
@@ -346,10 +353,8 @@ def train(modelname, working, strong_label_file, alpha, max_samples, duration, r
 
     print('Done training. Saving results to disk...')
     # Save history
-    with open(os.path.join(OUTPUT_PATH, version, 'history.pkl'), 'wb') as fd:
+    with open(os.path.join(OUTPUT_PATH, modelid, 'history.pkl'), 'wb') as fd:
         pickle.dump(history.history, fd)
-    # with open(os.path.join(OUTPUT_PATH, version, 'history.json'), 'w') as fd:
-    #     json.dump(history.history, fd, indent=2)
 
     # Evaluate model
     print('Evaluate model...')
@@ -360,10 +365,10 @@ def train(modelname, working, strong_label_file, alpha, max_samples, duration, r
 
     # Compute eval scores
     results = score_model(OUTPUT_PATH, pump, model, test_idx, working,
-                          strong_label_file, duration, version)
+                          strong_label_file, duration, modelid)
 
     # Save results to disk
-    results_file = os.path.join(OUTPUT_PATH, version, 'results.json')
+    results_file = os.path.join(OUTPUT_PATH, modelid, 'results.json')
     with open(results_file, 'w') as fp:
         json.dump(results, fp, indent=2)
 
@@ -376,20 +381,39 @@ if __name__ == '__main__':
 
     smkdirs(OUTPUT_PATH)
 
+    # Get current directory
+    cwd = os.getcwd()
+    # Get directory where git repo lives
+    curfilePath = os.path.relpath(milsed.__file__)
+    curDir = os.path.abspath(os.path.join(curfilePath, os.pardir))
+    parentDir = os.path.abspath(os.path.join(curDir, os.pardir))
+    # Change to the repo directory
+    os.system('cd {:s}'.format(parentDir))
+    # Get GIT version
     version = milsed.utils.increment_version(os.path.join(OUTPUT_PATH,
                                                           'version.txt'))
-    smkdirs(os.path.join(OUTPUT_PATH, version))
+    # Return to working dir
+    os.system('cd {:s}'.format(cwd))
+
+    # Add version to params
+    params['version'] = version
+
+    # Create folder for resutls
+    # smkdirs(os.path.join(OUTPUT_PATH, version))
+    smkdirs(os.path.join(OUTPUT_PATH, params.modelid))
 
     print('{}: training'.format(__doc__))
     print('Model version: {}'.format(version))
+    print('Model ID: {}'.format(params.modelid))
     print(params)
 
     # Store the parameters to disk (1)
-    with open(os.path.join(OUTPUT_PATH, version, 'params.json'),
+    with open(os.path.join(OUTPUT_PATH, params.modelid, 'params.json'),
               'w') as fd:
         json.dump(vars(params), fd, indent=4)
 
     train(params.modelname,
+          params.modelid,
           params.working,
           params.strong_labels_file,
           params.alpha,
