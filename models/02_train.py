@@ -162,6 +162,26 @@ def keras_tuples(gen, inputs=None, outputs=None):
                        [datum[o] for o in outputs])
 
 
+class LossHistory(K.callbacks.Callback):
+
+    def __init__(self, outfile):
+        super().__init__()
+        self.outfile = outfile
+
+    def on_train_begin(self, logs={}):
+        self.loss = []
+        self.val_loss = []
+
+    def on_batch_end(self, batch, logs={}):
+        self.loss.append(logs.get('loss'))
+        self.val_loss.append(logs.get('val_loss'))
+
+        loss_dict = {'loss': self.loss, 'val_loss': self.val_loss}
+        with open(self.outfile, 'wb') as fp:
+            pickle.dump(loss_dict, fp)
+
+
+
 def train(modelname, working, strong_label_file, alpha, max_samples, duration, rate,
           batch_size, epochs, epoch_size, validation_size,
           early_stopping, reduce_lr, seed, train_streamers, augment,
@@ -307,6 +327,10 @@ def train(modelname, working, strong_label_file, alpha, max_samples, duration, r
     cb.append(K.callbacks.EarlyStopping(patience=early_stopping,
                                         verbose=1,
                                         monitor=monitor))
+
+    history_checkpoint = os.path.join(OUTPUT_PATH, version,
+                                      'history_checkpoint.pkl')
+    cb.append(LossHistory(history_checkpoint))
 
     # Fit the model
     print('Fit model...')
