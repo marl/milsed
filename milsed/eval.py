@@ -13,6 +13,7 @@ import pickle
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+from collections import OrderedDict
 
 
 def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
@@ -189,9 +190,9 @@ def report_results(OUTPUT_PATH, version):
 
 
 def compare_results(OUTPUT_PATH, versions, sort=False):
-    results = {}
-    params = {}
-    n_weights = {}
+    results = OrderedDict({})
+    params = OrderedDict({})
+    n_weights = OrderedDict({})
 
     # Load pump
     pump = pickle.load(
