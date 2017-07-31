@@ -57,7 +57,7 @@ def process_arguments(args):
                         help='Rate of pescador stream deactivation')
 
     parser.add_argument('--epochs', dest='epochs', type=int,
-                        default=100,
+                        default=150,
                         help='Maximum number of epochs to train for')
 
     parser.add_argument('--epoch-size', dest='epoch_size', type=int,
