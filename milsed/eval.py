@@ -188,7 +188,7 @@ def report_results(OUTPUT_PATH, version):
     plt.show()
 
 
-def compare_results(OUTPUT_PATH, versions):
+def compare_results(OUTPUT_PATH, versions, sort=False):
     results = {}
     params = {}
     n_weights = {}
@@ -230,6 +230,7 @@ def compare_results(OUTPUT_PATH, versions):
             strong_f['precision'], strong_f['recall'], strong_e['error_rate'])
         df.loc[len(df), :] = data
 
-    df = df.sort_values('version')
+    if sort:
+        df = df.sort_values('version')
     return df
 
