@@ -399,7 +399,8 @@ if __name__ == '__main__':
     os.system('cd {:s}'.format(cwd))
 
     # Add version to params
-    params['version'] = version
+    d = vars(params)
+    d['version'] = version
 
     # Create folder for resutls
     # smkdirs(os.path.join(OUTPUT_PATH, version))
