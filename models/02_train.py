@@ -178,14 +178,14 @@ class LossHistory(K.callbacks.Callback):
         self.loss = []
         self.val_loss = []
 
-    def on_batch_end(self, batch, logs={}):
+    # def on_batch_end(self, batch, logs={}):
+    def on_epoch_end(self, epoch, logs={}):
         self.loss.append(logs.get('loss'))
         self.val_loss.append(logs.get('val_loss'))
 
         loss_dict = {'loss': self.loss, 'val_loss': self.val_loss}
         with open(self.outfile, 'wb') as fp:
             pickle.dump(loss_dict, fp)
-
 
 
 def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
@@ -341,6 +341,10 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
     history_checkpoint = os.path.join(OUTPUT_PATH, modelid,
                                       'history_checkpoint.pkl')
     cb.append(LossHistory(history_checkpoint))
+
+    history_csvlog = os.path.join(OUTPUT_PATH, modelid, 'history_csvlog.csv')
+    cb.append(K.callbacks.CSVLogger(history_csvlog, append=True,
+                                    separator=','))
 
     # Fit the model
     print('Fit model...')
