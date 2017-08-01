@@ -679,6 +679,77 @@ def construct_crnn2d3_smp(pump, alpha):
     return model, model_inputs, model_outputs
 
 
+def construct_crnn2d4_smp(pump, alpha):
+    '''
+    Like crnn2d3 but with batchnorm before the GRU
+
+    Parameters
+    ----------
+    pump
+    alpha
+
+    Returns
+    -------
+
+    '''
+    model_inputs = ['mel/mag']
+
+    # Build the input layer
+    layers = pump.layers()
+
+    x_mag = layers['mel/mag']
+
+    # Apply batch normalization
+    x_bn = K.layers.BatchNormalization()(x_mag)
+
+    # x_sq = milsed.layers.SqueezeLayer()(x_bn)
+
+    # First convolutional filter: 3x3
+    conv1 = K.layers.Convolution2D(16, (3, 3),
+                                   padding='same',
+                                   activation='relu',
+                                   kernel_initializer='he_normal')(x_bn)
+
+    bn2 = K.layers.BatchNormalization()(conv1)
+
+    conv2 = K.layers.Convolution2D(32, (3, 3),
+                                   padding='same',
+                                   activation='relu',
+                                   kernel_initializer='he_normal')(bn2)
+
+    bn3 = K.layers.BatchNormalization()(conv2)
+
+    conv_sq = K.layers.Convolution2D(64, (1, 128),
+                                     padding='valid',
+                                     activation='relu',
+                                     kernel_initializer='he_normal')(bn3)
+
+    bn4 = K.layers.BatchNormalization()(conv_sq)
+
+    sq2 = milsed.layers.SqueezeLayer(axis=-2)(bn4)
+
+    # First recurrent layer: a 128-dim bidirectional gru
+    rnn1 = K.layers.Bidirectional(K.layers.GRU(128,
+                                               return_sequences=True))(sq2)
+
+    n_classes = pump.fields['static/tags'].shape[0]
+
+    p0 = K.layers.Dense(n_classes, activation='sigmoid')
+
+    p_dynamic = K.layers.TimeDistributed(p0, name='dynamic/tags')(rnn1)
+
+    p_static = milsed.layers.SoftMaxPool(alpha=alpha,
+                                         axis=1,
+                                         name='static/tags')(p_dynamic)
+
+    model = K.models.Model([x_mag],
+                           [p_dynamic, p_static])
+
+    model_outputs = ['dynamic/tags', 'static/tags']
+
+    return model, model_inputs, model_outputs
+
+
 MODELS = {'crnn1d_smp': construct_crnn1d_smp,
           'crnn1d_max': construct_crnn1d_max,
           'crnn1d_avg': construct_crnn1d_avg,
@@ -689,5 +760,6 @@ MODELS = {'crnn1d_smp': construct_crnn1d_smp,
           'cnn1d2_smp': construct_cnn1d2_smp,
           'cbhg_smp': construct_cbhg_smp,
           'crnn2d2_smp': construct_crnn2d2_smp,
-          'crnn2d3_smp': construct_crnn2d3_smp}
+          'crnn2d3_smp': construct_crnn2d3_smp,
+          'crnn2d4_smp': construct_crnn2d4_smp}
 
