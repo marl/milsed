@@ -143,7 +143,7 @@ def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
 def report_results(OUTPUT_PATH, version):
     # Load results
     resultsfolder = os.path.join(OUTPUT_PATH, version)
-    resultsfile = os.path.join(OUTPUT_PATH, version, 'results.json')
+    resultsfile = os.path.join(resultsfolder, 'results.json')
     with open(resultsfile, 'r') as fp:
         results = json.load(fp)
 
@@ -173,10 +173,17 @@ def report_results(OUTPUT_PATH, version):
                                                             r_c['f_measure'],
                                                             r_ce['error_rate']))
 
-    # Load training history
-    history_file = os.path.join(resultsfolder, 'history.pkl')
-    with open(history_file, 'rb') as fp:
-        history = pickle.load(fp)
+    # # Load training history
+    # history_file = os.path.join(resultsfolder, 'history.pkl')
+    # with open(history_file, 'rb') as fp:
+    #     history = pickle.load(fp)
+
+    # Load dynamic history CSV file
+    csvfile = os.path.join(resultsfolder, 'history_csvlog.csv')
+    history = pd.read_csv(csvfile)
+
+    # Set sns style
+    sns.set()
 
     print('\nLoss:')
 
@@ -186,7 +193,7 @@ def report_results(OUTPUT_PATH, version):
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.title('Loss: {}'.format(version))
-    plt.grid()
+    # plt.grid()
     plt.legend()
     plt.show()
 
