@@ -1087,5 +1087,6 @@ MODELS = {'crnn1d_smp': construct_crnn1d_smp,
           'crnn2d3_smp': construct_crnn2d3_smp,
           'crnn2d4_smp': construct_crnn2d4_smp,
           'crnnL3_smp': construct_crnnL3_smp,
-          'crnnL3_2_smp': construct_crnnL3_2_smp}
+          'crnnL3_2_smp': construct_crnnL3_2_smp,
+          'crnnL3_3_smp': construct_crnnL3_3_smp}
 
