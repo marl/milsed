@@ -1074,6 +1074,128 @@ def construct_crnnL3_3_smp(pump, alpha):
 
     return model, model_inputs, model_outputs
 
+
+def construct_crnnL3_4_smp(pump, alpha):
+    '''
+    Like crnnL3_3 but add another conv block (make deeper)
+
+    Parameters
+    ----------
+    pump
+    alpha
+
+    Returns
+    -------
+
+    '''
+    model_inputs = ['mel/mag']
+
+    # Build the input layer
+    layers = pump.layers()
+
+    x_mag = layers['mel/mag']
+
+    # Apply batch normalization
+    x_bn = K.layers.BatchNormalization()(x_mag)
+
+    # x_sq = milsed.layers.SqueezeLayer()(x_bn)
+
+    # BLOCK 1
+    conv1 = K.layers.Convolution2D(16, (3, 3),
+                                   padding='same',
+                                   activation='relu',
+                                   kernel_initializer='he_normal')(x_bn)
+    bn1 = K.layers.BatchNormalization()(conv1)
+    conv2 = K.layers.Convolution2D(16, (3, 3),
+                                   padding='same',
+                                   activation='relu',
+                                   kernel_initializer='he_normal')(bn1)
+    bn2 = K.layers.BatchNormalization()(conv2)
+    pool2 = K.layers.MaxPooling2D((2,2), padding='valid')(bn2)
+
+    # BLOCK 2
+    conv3 = K.layers.Convolution2D(32, (3, 3),
+                                   padding='same',
+                                   activation='relu',
+                                   kernel_initializer='he_normal')(pool2)
+    bn3 = K.layers.BatchNormalization()(conv3)
+    conv4 = K.layers.Convolution2D(32, (3, 3),
+                                   padding='same',
+                                   activation='relu',
+                                   kernel_initializer='he_normal')(bn3)
+    bn4 = K.layers.BatchNormalization()(conv4)
+    pool4 = K.layers.MaxPooling2D((2, 2), padding='valid')(bn4)
+
+    # BLOCK 3
+    conv5 = K.layers.Convolution2D(64, (3, 3),
+                                   padding='same',
+                                   activation='relu',
+                                   kernel_initializer='he_normal')(pool4)
+    bn5 = K.layers.BatchNormalization()(conv5)
+    conv6 = K.layers.Convolution2D(64, (3, 3),
+                                   padding='same',
+                                   activation='relu',
+                                   kernel_initializer='he_normal')(bn5)
+    bn6 = K.layers.BatchNormalization()(conv6)
+    pool6 = K.layers.MaxPooling2D((2, 2), padding='valid')(bn6)
+
+    # BLOCK 4
+    conv7 = K.layers.Convolution2D(128, (3, 3),
+                                   padding='same',
+                                   activation='relu',
+                                   kernel_initializer='he_normal')(pool6)
+    bn7 = K.layers.BatchNormalization()(conv7)
+    conv8 = K.layers.Convolution2D(128, (3, 3),
+                                   padding='same',
+                                   activation='relu',
+                                   kernel_initializer='he_normal')(bn7)
+    bn8 = K.layers.BatchNormalization()(conv8)
+    pool8 = K.layers.MaxPooling2D((2, 2), padding='valid')(bn8)
+
+    # BLOCK 5
+    conv9 = K.layers.Convolution2D(256, (3, 3),
+                                   padding='same',
+                                   activation='relu',
+                                   kernel_initializer='he_normal')(pool8)
+    bn9 = K.layers.BatchNormalization()(conv9)
+    conv10 = K.layers.Convolution2D(256, (3, 3),
+                                   padding='same',
+                                   activation='relu',
+                                   kernel_initializer='he_normal')(bn9)
+    bn10 = K.layers.BatchNormalization()(conv10)
+    pool10 = K.layers.MaxPooling2D((2, 2), padding='valid')(bn10)
+
+    # CONV SQUEEZE
+    conv_sq = K.layers.Convolution2D(512, (1, 4),
+                                     padding='valid',
+                                     activation='relu',
+                                     kernel_initializer='he_normal')(pool10)
+    bn11 = K.layers.BatchNormalization()(conv_sq)
+    sq2 = milsed.layers.SqueezeLayer(axis=-2)(bn11)
+
+    # RNN
+    # First recurrent layer: a 128-dim bidirectional gru
+    rnn1 = K.layers.Bidirectional(K.layers.GRU(128,
+                                               return_sequences=True))(sq2)
+
+    n_classes = pump.fields['static/tags'].shape[0]
+
+    p0 = K.layers.Dense(n_classes, activation='sigmoid',
+                        bias_regularizer=K.regularizers.l2())
+
+    p_dynamic = K.layers.TimeDistributed(p0, name='dynamic/tags')(rnn1)
+
+    p_static = milsed.layers.SoftMaxPool(alpha=alpha,
+                                         axis=1,
+                                         name='static/tags')(p_dynamic)
+
+    model = K.models.Model([x_mag],
+                           [p_dynamic, p_static])
+
+    model_outputs = ['dynamic/tags', 'static/tags']
+
+    return model, model_inputs, model_outputs
+
 MODELS = {'crnn1d_smp': construct_crnn1d_smp,
           'crnn1d_max': construct_crnn1d_max,
           'crnn1d_avg': construct_crnn1d_avg,
@@ -1088,5 +1210,6 @@ MODELS = {'crnn1d_smp': construct_crnn1d_smp,
           'crnn2d4_smp': construct_crnn2d4_smp,
           'crnnL3_smp': construct_crnnL3_smp,
           'crnnL3_2_smp': construct_crnnL3_2_smp,
-          'crnnL3_3_smp': construct_crnnL3_3_smp}
+          'crnnL3_3_smp': construct_crnnL3_3_smp,
+          'crnnL3_4_smp': construct_crnnL3_4_smp}
 
