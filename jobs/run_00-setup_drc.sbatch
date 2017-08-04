@@ -18,5 +18,5 @@ module load sox/intel/14.4.2
 module load rubberband/intel/1.8.1
 module load ffmpeg/intel/3.2.2
 
-python ~/dev/milsed/models/00-setup_drc.py '/beegfs/js7561/datasets/dcase2017/task4_official/train/audio_silence/' '/beegfs/js7561/datasets/dcase2017/task4_official/train/audio_augmented/' --audio-ext wav --jams-ext jams --jobs 10 --start_index 10
+python ~/dev/milsed/models/00_setup_drc.py '/beegfs/js7561/datasets/dcase2017/task4_official/train/audio_silence/' '/beegfs/js7561/datasets/dcase2017/task4_official/train/audio_augmented/' --audio-ext wav --jams-ext jams --jobs 10 --start_index 10
 
