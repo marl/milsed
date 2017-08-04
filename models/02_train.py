@@ -78,7 +78,11 @@ def process_arguments(args):
 
     parser.add_argument('--augment', dest='augment', action='store_const',
                         const=True, default=False,
-                        help='Use augmented data for training.')
+                        help='Use augmented PITCHSHIFT data for training.')
+
+    parser.add_argument('--augment_drc', dest='augment_drc',
+                        action='store_const', const=True, default=False,
+                        help='Use augmented DRC data for training.')
 
     parser.add_argument('--verbose', dest='verbose', action='store_const',
                         const=True, default=False,
@@ -118,8 +122,8 @@ def data_sampler(fname, sampler):
         yield datum
 
 
-def data_generator(working, tracks, sampler, k, augment=True, batch_size=32,
-                   **kwargs):
+def data_generator(working, tracks, sampler, k, augment=True, augment_drc=True,
+                   batch_size=32, **kwargs):
     '''Generate a data stream from a collection of tracks and a sampler'''
 
     seeds = []
@@ -136,6 +140,12 @@ def data_generator(working, tracks, sampler, k, augment=True, batch_size=32,
                 augname = fname.replace('.h5', '.{:d}.h5'.format(aug))
                 # seeds.append(pescador.Streamer(data_sampler, fname, sampler))
                 seeds.append(pescador.Streamer(data_sampler, augname, sampler))
+
+        if augment_drc:
+            for aug in range(10, 14):
+                augname = fname.replace('.h5', '.{:d}.h5'.format(aug))
+                seeds.append(
+                    pescador.Streamer(data_sampler, augname, sampler))
 
     # Send it all to a mux
     mux = pescador.Mux(seeds, k, **kwargs)
@@ -192,7 +202,7 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
           duration, rate,
           batch_size, epochs, epoch_size, validation_size,
           early_stopping, reduce_lr, seed, train_streamers, augment,
-          verbose, version):
+          augment_drc, verbose, version):
     '''
     Parameters
     ----------
@@ -245,7 +255,10 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
         Number of streamers to keep alive simultaneously during training
 
     augment : bool
-        Include augmented data during training
+        Include augmented PITCHSHIFT data during training
+
+    augment_drc : bool
+        Include augmented DRC data during training
 
     verbose : bool
         Verbose output during keras training.
@@ -283,6 +296,7 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
     gen_train = data_generator(working,
                                idx_train['id'].values, sampler, train_streamers,
                                augment=augment,
+                               augment_drc=augment_drc,
                                lam=rate,
                                batch_size=batch_size,
                                revive=True,
@@ -294,6 +308,7 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
     gen_val = data_generator(working,
                              idx_val['id'].values, sampler, len(idx_val),
                              augment=False,
+                             augment_drc=False,
                              batch_size=batch_size,
                              revive=True,
                              random_state=seed)
@@ -437,6 +452,7 @@ if __name__ == '__main__':
           params.seed,
           params.train_streamers,
           params.augment,
+          params.augment_drc,
           params.verbose,
           version)
 
