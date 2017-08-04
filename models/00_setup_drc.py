@@ -37,6 +37,10 @@ def process_arguments(args):
                         default=1,
                         help='Number of jobs to run in parallel')
 
+    parser.add_argument('--start_index', dest='start_index', type=int,
+                        default=0,
+                        help='Start index for numbering output files')
+
     parser.add_argument('input_path', type=str,
                         help='Path for input (audio, jams) pairs')
 
@@ -46,8 +50,8 @@ def process_arguments(args):
     return parser.parse_args(args)
 
 
-def augment(afile, jfile, deformer, outpath, audio_ext, jams_ext, sr=44100,
-            start_index=0):
+def augment(afile, jfile, deformer, outpath, audio_ext, jams_ext,
+            start_index, sr=44100):
     '''Run the data through muda'''
     jam = muda.load_jam_audio(jfile, afile, sr=sr)
 
@@ -91,5 +95,6 @@ if __name__ == '__main__':
     Parallel(n_jobs=params.n_jobs)(delayed(augment)(aud, ann, deformer,
                                                     params.output_path,
                                                     params.audio_ext,
-                                                    params.jams_ext)
+                                                    params.jams_ext,
+                                                    params.start_index)
                                    for aud, ann in stream)
