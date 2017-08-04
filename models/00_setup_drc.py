@@ -21,7 +21,7 @@ def process_arguments(args):
     parser = argparse.ArgumentParser(description=__doc__)
 
     parser.add_argument(
-        '--presets', dest='presets', nargs='+',
+        '--presets', dest='presets', nargs='+', type='str',
         default=['radio', 'film standard', 'music standard', 'speech'],
         help='DRC presets to apply')
 
