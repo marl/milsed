@@ -17,7 +17,8 @@ from collections import OrderedDict
 
 
 def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
-                version, use_tqdm=False):
+                version, use_tqdm=False, use_orig_duration=False,
+                save_jams=True):
 
     results = {}
 
@@ -37,6 +38,11 @@ def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
     # Predict on test, file by file, and compute eval scores
     if use_tqdm:
         idx = tqdm(idx, desc='Evaluating the model')
+
+    # Load durations filel
+    if use_orig_duration:
+        durfile = os.path.join(OUTPUT_PATH, 'durations.json')
+        durations = json.load(open(durfile, 'r'))
 
     for fid in idx:
 
@@ -88,8 +94,18 @@ def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
         # file metadata
         jam.file_metadata.duration = duration
         jam.file_metadata.title = fid
-        jamfile = os.path.join(pred_folder, '{:s}.jams'.format(fid))
-        jam.save(jamfile)
+
+        # Trim annotations to original file's duration
+        if use_orig_duration:
+            orig_duration = durations[fid]
+            jam = jam.trim(0, orig_duration, strict=False)
+            ann_s = jam.annotations.search(annotation_tools='static')
+            ann_d = jam.annotations.search(annotation_tools='dynamic')
+            ann_r = jam.annotations.search(annotation_tools='reference')
+
+        if save_jams:
+            jamfile = os.path.join(pred_folder, '{:s}.jams'.format(fid))
+            jam.save(jamfile)
 
         # Compute intermediate stats for sed_eval metrics
         # sed_eval expects a list containing a dict for each event, where the
