@@ -383,7 +383,7 @@ def predict_eval(OUTPUT_PATH, pump, model, idx, pumpfolder, duration,
     df_d_all.to_csv(dfile, header=False, index=False, sep='\t')
 
     dfile = os.path.join(pred_folder, 'pred_static.txt')
-    df_d_all.to_csv(dfile, header=False, index=False, sep='\t')
+    df_s_all.to_csv(dfile, header=False, index=False, sep='\t')
 
     # Return
     return df_s_all, df_d_all
