@@ -223,7 +223,8 @@ def report_results(OUTPUT_PATH, version):
     plt.show()
 
 
-def compare_results(OUTPUT_PATH, versions, sort=False, weak_from_strong=False):
+def compare_results(OUTPUT_PATH, versions, sort=False, weak_from_strong=False,
+                    weak_macro=False):
     results = OrderedDict({})
     params = OrderedDict({})
     n_weights = OrderedDict({})
@@ -261,7 +262,10 @@ def compare_results(OUTPUT_PATH, versions, sort=False, weak_from_strong=False):
                  's_p', 's_r', 's_e'])
     for k in results.keys():
         r = results[k]
-        weak = r['weak']['micro']
+        if weak_macro:
+            weak = r['weak']['macro']
+        else:
+            weak = r['weak']['micro']
         strong_f = r['strong']['overall']['f_measure']
         strong_e = r['strong']['overall']['error_rate']
         data = (
