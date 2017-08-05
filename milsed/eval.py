@@ -18,7 +18,7 @@ from collections import OrderedDict
 
 def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
                 version, use_tqdm=False, use_orig_duration=False,
-                save_jams=True):
+                save_jams=True, weak_from_strong=False):
 
     results = {}
 
@@ -31,7 +31,12 @@ def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
         pump['static'].encoder.classes_.tolist(), time_resolution=1.0)
 
     # Create folder for predictions
-    pred_folder = os.path.join(OUTPUT_PATH, version, 'predictions')
+    if weak_from_strong:
+        pred_folder = os.path.join(OUTPUT_PATH, version,
+                                   'predictions_weakfromstrong')
+    else:
+        pred_folder = os.path.join(OUTPUT_PATH, version, 'predictions')
+
     if not os.path.isdir(pred_folder):
         os.mkdir(pred_folder)
 
@@ -61,7 +66,11 @@ def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
                                                            datum.shape[1])
 
         # Append weak predictions
-        weak_pred.append((output_s[0]>=0.5)*1)  # binarize
+        if weak_from_strong:
+            wfs_pred = np.max(output_d[0], axis=0)
+            weak_pred.append((wfs_pred >= 0.5)*1)
+        else:
+            weak_pred.append((output_s[0]>=0.5)*1)  # binarize
         weak_true.append(ytrue * 1)  # convert from bool to int
 
         # Build a dynamic task label transformer for the strong predictions
