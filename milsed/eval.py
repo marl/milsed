@@ -223,8 +223,7 @@ def report_results(OUTPUT_PATH, version):
     plt.show()
 
 
-def compare_results(OUTPUT_PATH, versions, sort=False, weak_from_strong=False,
-                    weak_macro=False):
+def compare_results(OUTPUT_PATH, versions, sort=False, weak_from_strong=False):
     results = OrderedDict({})
     params = OrderedDict({})
     n_weights = OrderedDict({})
@@ -258,20 +257,19 @@ def compare_results(OUTPUT_PATH, versions, sort=False, weak_from_strong=False,
 
     # Convert to dataframe
     df = pd.DataFrame(
-        columns=['version', 'model', 'n_weights', 'w_f1', 'w_p', 'w_r', 's_f1',
-                 's_p', 's_r', 's_e'])
+        columns=['version', 'model', 'n_weights', 'w_f1(ma)', 'w_f1(mi)',
+                 'w_p(mi)', 'w_r(mi)', 's_f1', 's_p', 's_r', 's_e'])
     for k in results.keys():
         r = results[k]
-        if weak_macro:
-            weak = r['weak']['macro']
-        else:
-            weak = r['weak']['micro']
+        weak_macro = r['weak']['macro']
+        weak = r['weak']['micro']
         strong_f = r['strong']['overall']['f_measure']
         strong_e = r['strong']['overall']['error_rate']
         data = (
-            k, params[k]['modelname'], n_weights[k], weak['f1'],
-            weak['precision'], weak['recall'], strong_f['f_measure'],
-            strong_f['precision'], strong_f['recall'], strong_e['error_rate'])
+            k, params[k]['modelname'], n_weights[k], weak_macro['f1'],
+            weak['f1'], weak['precision'], weak['recall'],
+            strong_f['f_measure'], strong_f['precision'], strong_f['recall'],
+            strong_e['error_rate'])
         df.loc[len(df), :] = data
 
     if sort:
