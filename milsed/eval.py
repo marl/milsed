@@ -260,3 +260,131 @@ def compare_results(OUTPUT_PATH, versions, sort=False):
         df = df.sort_values('version')
     return df
 
+
+def predict_eval(OUTPUT_PATH, pump, model, idx, pumpfolder, duration,
+                 version, use_tqdm=False, use_orig_duration=True,
+                 save_jams=True):
+    '''
+    Predict on EVAL SET and store predictions.
+
+    Parameters
+    ----------
+    OUTPUT_PATH
+    pump
+    model
+    idx
+    pumpfolder
+    duration
+    version
+    use_tqdm
+    use_orig_duration
+    save_jams
+
+    Returns
+    -------
+
+    '''
+
+    # For storing predictions across all eval files
+    df_d_all = pd.DataFrame(
+        columns=['filename', 'start_time', 'end_time', 'label'])
+    df_s_all = pd.DataFrame(
+        columns=['filename', 'start_time', 'end_time', 'label'])
+
+    # Create folder for predictions
+    pred_folder = os.path.join(OUTPUT_PATH, version, 'predictions_eval')
+    if not os.path.isdir(pred_folder):
+        os.mkdir(pred_folder)
+
+    # Predict on test, file by file, and compute eval scores
+    if use_tqdm:
+        idx = tqdm(idx, desc='Evaluating the model')
+
+    # Load durations file
+    if use_orig_duration:
+        durfile = os.path.join(OUTPUT_PATH, 'durations.json')
+        durations = json.load(open(durfile, 'r'))
+
+    for fid in idx:
+
+        # Load eval data
+        pumpfile = os.path.join(pumpfolder, fid + '.h5')
+        dpump = milsed.utils.load_h5(pumpfile)
+        datum = dpump['mel/mag']
+        ytrue = dpump['static/tags'][0]  # dummy data
+
+        # Predict
+        output_d, output_s = model.predict(datum)
+
+        # If output is smaller in time dimension that input, interpolate
+        if output_d.shape[1] != datum.shape[1]:
+            output_d = milsed.utils.interpolate_prediction(output_d, duration,
+                                                           datum.shape[1])
+
+        # Build a dynamic task label transformer for the strong predictions
+        dynamic_trans = pumpp.task.DynamicLabelTransformer(
+            name='dynamic', namespace='tag_open',
+            labels=pump['static'].encoder.classes_)
+        dynamic_trans.encoder = pump['static'].encoder
+
+        # Convert weak and strong predictions into JAMS annotations
+        ann_s = pump['static'].inverse(output_s[0], duration=duration)
+        ann_d = dynamic_trans.inverse(output_d[0], duration=duration)
+
+        # add basic annotation metadata
+        ann_s.annotation_metadata.version = version
+        ann_s.annotation_metadata.annotation_tools = 'static'
+        ann_d.annotation_metadata.version = version
+        ann_d.annotation_metadata.annotation_tools = 'dynamic'
+
+        # Add annotations to jams
+        jam = jams.JAMS()
+        jam.file_metadata.duration = duration
+        jam.file_metadata.title = fid
+
+        jam.annotations.append(ann_s)
+        jam.annotations.append(ann_d)
+
+        # Trim annotations to original file's duration
+        if use_orig_duration:
+            orig_duration = durations[fid]
+            jam = jam.trim(0, orig_duration, strict=False)
+            ann_s = jam.annotations.search(annotation_tools='static')[0]
+            ann_d = jam.annotations.search(annotation_tools='dynamic')[0]
+
+        if save_jams:
+            jamfile = os.path.join(pred_folder, '{:s}.jams'.format(fid))
+            jam.save(jamfile)
+
+        # Append weak and strong results to overall dataframes
+
+        # PROCESS DYNAMIC LABELS
+        df_d = ann_d.to_dataframe()
+        df_d['filename'] = 'audio/{}.wav'.format(fid)
+        df_d['start_time'] = df_d.time
+        df_d['end_time'] = df_d.time + df_d.duration
+        df_d['label'] = df_d['value']
+        df_d_ordered = df_d[['filename', 'start_time', 'end_time', 'label']]
+
+        df_d_all = df_d_all.append(df_d_ordered)
+
+        # PROCESS STATIC LABELS
+        df_s = ann_s.to_dataframe()
+        df_s['filename'] = 'audio/{}.wav'.format(fid)
+        df_s['start_time'] = df_s.time
+        df_s['end_time'] = df_s.time + df_s.duration
+        df_s['label'] = df_s['value']
+        df_s_ordered = df_s[['filename', 'start_time', 'end_time', 'label']]
+
+        df_s_all = df_s_all.append(df_s_ordered)
+
+    # Save results to disk
+    dfile = os.path.join(pred_folder, 'pred_dynamic.txt')
+    df_d_all.to_csv(dfile, header=False, index=False, sep='\t')
+
+    dfile = os.path.join(pred_folder, 'pred_static.txt')
+    df_d_all.to_csv(dfile, header=False, index=False, sep='\t')
+
+    # Return
+    return df_s_all, df_d_all
+
