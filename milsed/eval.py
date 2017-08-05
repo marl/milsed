@@ -223,7 +223,7 @@ def report_results(OUTPUT_PATH, version):
     plt.show()
 
 
-def compare_results(OUTPUT_PATH, versions, sort=False):
+def compare_results(OUTPUT_PATH, versions, sort=False, weak_from_strong=False):
     results = OrderedDict({})
     params = OrderedDict({})
     n_weights = OrderedDict({})
@@ -236,7 +236,12 @@ def compare_results(OUTPUT_PATH, versions, sort=False):
     for version in versions:
 
         # Load results
-        resultsfile = os.path.join(OUTPUT_PATH, version, 'results.json')
+        if weak_from_strong:
+            resultsfile = os.path.join(OUTPUT_PATH, version,
+                                       'predictions_weakfromstrong',
+                                       'results.json')
+        else:
+            resultsfile = os.path.join(OUTPUT_PATH, version, 'results.json')
         with open(resultsfile, 'r') as fp:
             results[version] = json.load(fp)
 
