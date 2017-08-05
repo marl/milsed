@@ -1928,7 +1928,7 @@ def construct_crnnL3_10_smp(pump, alpha):
     pool15 = K.layers.MaxPooling2D((2, 2), padding='valid')(bn15)
 
     # CONV SQUEEZE
-    conv_sq = K.layers.Convolution2D(256, (1, 8),
+    conv_sq = K.layers.Convolution2D(256, (1, 4),
                                      padding='valid',
                                      activation='relu',
                                      kernel_initializer='he_normal')(pool15)
