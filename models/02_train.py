@@ -195,7 +195,9 @@ def data_generator_balanced(working, tracks, sampler, k, augment=True,
         lclass = labels[labels.label==l]
         filenames = lclass.filename.values
         filenames = ['Y{}'.format(fn) for fn in filenames]
-        filenames = np.intersect1d(tracks, filenames)
+        tracks_str = [str(t) for t in tracks]
+        filenames = np.intersect1d(np.array(tracks_str), np.array(filenames))
+        print(l, len(filenames))
 
         seeds = []
 
