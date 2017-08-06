@@ -279,7 +279,7 @@ def compare_results(OUTPUT_PATH, versions, sort=False, weak_from_strong=False):
 
 def predict_eval(OUTPUT_PATH, pump, model, idx, pumpfolder, duration,
                  version, use_tqdm=False, use_orig_duration=True,
-                 save_jams=True):
+                 save_jams=True, weak_from_strong=False):
     '''
     Predict on EVAL SET and store predictions.
 
@@ -404,3 +404,178 @@ def predict_eval(OUTPUT_PATH, pump, model, idx, pumpfolder, duration,
     # Return
     return df_s_all, df_d_all
 
+
+def score_ensemble(OUTPUT_PATH, pump, model_list, idx, pumpfolder, labelfile,
+                   duration,
+                   ensemble_version, use_tqdm=False, use_orig_duration=False,
+                   save_jams=True, weak_from_strong=False):
+
+    def geo_mean(data, axis=0, use_log=True):
+        if use_log:
+            return np.exp(np.log(data).sum(axis=axis) / len(data))
+        else:
+            return data.prod(axis=axis)**(1.0/len(data))
+
+    results = {}
+
+    # For computing weak metrics
+    weak_true = []
+    weak_pred = []
+
+    # For computing strong (sed_eval) metrics
+    segment_based_metrics = sed_eval.sound_event.SegmentBasedMetrics(
+        pump['static'].encoder.classes_.tolist(), time_resolution=1.0)
+
+    # Create folder for predictions
+    ensemble_folder = os.path.join(OUTPUT_PATH, ensemble_version)
+    if not os.path.isdir(ensemble_folder):
+        os.mkdir(ensemble_folder)
+
+    if weak_from_strong:
+        pred_folder = os.path.join(OUTPUT_PATH, ensemble_version,
+                                   'predictions_weakfromstrong')
+    else:
+        pred_folder = os.path.join(OUTPUT_PATH, ensemble_version,
+                                   'predictions')
+
+    if not os.path.isdir(pred_folder):
+        os.mkdir(pred_folder)
+
+    # Predict on test, file by file, and compute eval scores
+    if use_tqdm:
+        idx = tqdm(idx, desc='Evaluating the ensemble')
+
+    # Load durations filel
+    if use_orig_duration:
+        durfile = os.path.join(OUTPUT_PATH, 'durations.json')
+        durations = json.load(open(durfile, 'r'))
+
+    for fid in idx:
+
+        # Load test data
+        pumpfile = os.path.join(pumpfolder, fid + '.h5')
+        dpump = milsed.utils.load_h5(pumpfile)
+        datum = dpump['mel/mag']
+        ytrue = dpump['static/tags'][0]
+
+        # Predict from every model
+        output_d_ensemble = []
+        output_s_ensemble = []
+        for model in model_list:
+            output_d, output_s = model.predict(datum)
+            output_d_ensemble.append(output_d[0])
+            output_s_ensemble.append(output_s[0])
+
+        # Late fusion using geometric mean
+        output_d_ensemble = np.asarray(output_d_ensemble)
+        output_s_ensemble = np.asarray(output_s_ensemble)
+
+        output_d = geo_mean(output_d_ensemble, axis=0, use_log=True)
+        output_s = geo_mean(output_s_ensemble, axis=0, use_log=True)
+
+        output_d = np.expand_dims(output_d, axis=0)
+        output_s = np.expand_dims(output_s, axis=0)
+
+        # If output is smaller in time dimension that input, interpolate
+        if output_d.shape[1] != datum.shape[1]:
+            output_d = milsed.utils.interpolate_prediction(output_d, duration,
+                                                           datum.shape[1])
+
+        # Append weak predictions
+        if weak_from_strong:
+            wfs_pred = np.max(output_d[0], axis=0)
+            weak_pred.append((wfs_pred >= 0.5)*1)
+        else:
+            weak_pred.append((output_s[0]>=0.5)*1)  # binarize
+        weak_true.append(ytrue * 1)  # convert from bool to int
+
+        # Build a dynamic task label transformer for the strong predictions
+        dynamic_trans = pumpp.task.DynamicLabelTransformer(
+            name='dynamic', namespace='tag_open',
+            labels=pump['static'].encoder.classes_)
+        dynamic_trans.encoder = pump['static'].encoder
+
+        # Convert weak and strong predictions into JAMS annotations
+        ann_s = pump['static'].inverse(output_s[0], duration=duration)
+        ann_d = dynamic_trans.inverse(output_d[0], duration=duration)
+
+        # add basic annotation metadata
+        ann_s.annotation_metadata.version = ensemble_version
+        ann_s.annotation_metadata.annotation_tools = 'static'
+        ann_d.annotation_metadata.version = ensemble_version
+        ann_d.annotation_metadata.annotation_tools = 'dynamic'
+
+        # Create reference jams annotation
+        ref_jam = milsed.utils.create_dcase_jam(fid, labelfile, duration=10.0,
+                                                weak=False)
+        ann_r = ref_jam.annotations.search(annotation_tools='reference')[0]
+
+        # Add annotations to jams
+        jam = jams.JAMS()
+        jam.annotations.append(ann_s)
+        jam.annotations.append(ann_d)
+        jam.annotations.append(ann_r)
+
+        # file metadata
+        jam.file_metadata.duration = duration
+        jam.file_metadata.title = fid
+
+        # Trim annotations to original file's duration
+        if use_orig_duration:
+            orig_duration = durations[fid]
+            jam = jam.trim(0, orig_duration, strict=False)
+            ann_s = jam.annotations.search(annotation_tools='static')[0]
+            ann_d = jam.annotations.search(annotation_tools='dynamic')[0]
+            ann_r = jam.annotations.search(annotation_tools='reference')[0]
+
+        if save_jams:
+            jamfile = os.path.join(pred_folder, '{:s}.jams'.format(fid))
+            jam.save(jamfile)
+
+        # Compute intermediate stats for sed_eval metrics
+        # sed_eval expects a list containing a dict for each event, where the
+        # dict keys are event_onset, event_offset, event_label.
+        ref_list = []
+        for event in ann_r.data:
+            ref_list.append({'event_onset': event.time,
+                             'event_offset': event.time + event.duration,
+                             'event_label': event.value})
+        ref_list = sed_eval.util.event_list.EventList(ref_list)
+
+        est_list = []
+        for event in ann_d.data:
+            est_list.append({'event_onset': event.time,
+                             'event_offset': event.time + event.duration,
+                             'event_label': event.value})
+        est_list = sed_eval.util.event_list.EventList(est_list)
+
+        segment_based_metrics.evaluate(ref_list, est_list)
+
+    # Compute weak metrics
+    weak_true = np.asarray(weak_true)
+    weak_pred = np.asarray(weak_pred)
+    weak_pred = (weak_pred >= 0.5) * 1  # binarize
+
+    results['weak'] = {}
+    for avg in ['micro', 'macro', 'weighted', 'samples']:
+        results['weak'][avg] = {}
+        results['weak'][avg]['f1'] = sklearn.metrics.f1_score(
+            weak_true, weak_pred, average=avg)
+        results['weak'][avg]['precision'] = sklearn.metrics.precision_score(
+            weak_true, weak_pred, average=avg)
+        results['weak'][avg]['recall'] = sklearn.metrics.recall_score(
+            weak_true, weak_pred, average=avg)
+
+    # results['weak']['f1_micro'] = sklearn.metrics.f1_score(
+    #     weak_true, weak_pred, average='micro')
+    # results['weak']['f1_macro'] = sklearn.metrics.f1_score(
+    #     weak_true, weak_pred, average='macro')
+    # results['weak']['f1_weighted'] = sklearn.metrics.f1_score(
+    #     weak_true, weak_pred, average='weighted')
+    # results['weak']['f1_samples'] = sklearn.metrics.f1_score(
+    #     weak_true, weak_pred, average='samples')
+
+    # Compute strong (sed_eval) metrics
+    results['strong'] = segment_based_metrics.results()
+
+    return results
