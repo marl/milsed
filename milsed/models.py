@@ -2256,12 +2256,12 @@ def construct_crnnL3_12_smp(pump, alpha):
     # Build the input layer
     input_height = 256
 
-    x = milsed.layers.SqueezeLayer()(rnn3)
+    # x = milsed.layers.SqueezeLayer()(rnn3)
 
     # Conv1D Bank
     Conv1D_filt_act = []
     for k in range(K_bank):
-        Conv1D_filt_act.append(K.layers.Conv1D(c, k + 1, padding='same')(x))
+        Conv1D_filt_act.append(K.layers.Conv1D(c, k + 1, padding='same')(rnn3))
 
     # Stack feature maps
     y = Concatenate()(Conv1D_filt_act)
@@ -2275,7 +2275,7 @@ def construct_crnnL3_12_smp(pump, alpha):
     y = Conv1D(input_height, 3, padding='same', activation='linear')(y)
     y = BatchNormalization()(y)
 
-    y = Add()([y, x])
+    y = Add()([y, rnn3])
 
     # Highway
     y_h = TimeDistributed(Dense(input_height, activation='relu'))(y)
