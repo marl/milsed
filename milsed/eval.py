@@ -223,7 +223,8 @@ def report_results(OUTPUT_PATH, version):
     plt.show()
 
 
-def compare_results(OUTPUT_PATH, versions, sort=False, weak_from_strong=False):
+def compare_results(OUTPUT_PATH, versions, sort=False, weak_from_strong=False,
+                    is_ensemble=False):
     results = OrderedDict({})
     params = OrderedDict({})
     n_weights = OrderedDict({})
@@ -245,15 +246,19 @@ def compare_results(OUTPUT_PATH, versions, sort=False, weak_from_strong=False):
         with open(resultsfile, 'r') as fp:
             results[version] = json.load(fp)
 
-        # Load params
-        paramsfile = os.path.join(OUTPUT_PATH, version, 'params.json')
-        with open(paramsfile, 'r') as fp:
-            params[version] = json.load(fp)
+        if is_ensemble:
+            n_weights[version] = 'ensemble'
+            params[version] = {'modelname': version}
+        else:
+            # Load params
+            paramsfile = os.path.join(OUTPUT_PATH, version, 'params.json')
+            with open(paramsfile, 'r') as fp:
+                params[version] = json.load(fp)
 
-        # Compute model size
-        model, _, _ = milsed.models.MODELS[params[version]['modelname']](
-            pump, params[version]['alpha'])
-        n_weights[version] = model.count_params()
+            # Compute model size
+            model, _, _ = milsed.models.MODELS[params[version]['modelname']](
+                pump, params[version]['alpha'])
+            n_weights[version] = model.count_params()
 
     # Convert to dataframe
     df = pd.DataFrame(
