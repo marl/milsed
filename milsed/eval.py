@@ -18,7 +18,7 @@ from collections import OrderedDict
 
 def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
                 version, use_tqdm=False, use_orig_duration=False,
-                save_jams=True, weak_from_strong=False, use_validation=False):
+                save_jams=True, weak_from_strong=False):
 
     results = {}
 
@@ -30,25 +30,11 @@ def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
     segment_based_metrics = sed_eval.sound_event.SegmentBasedMetrics(
         pump['static'].encoder.classes_.tolist(), time_resolution=1.0)
 
-    # Create folder for predictions
-    if use_validation:
-
+    if weak_from_strong:
         pred_folder = os.path.join(OUTPUT_PATH, version,
-                                   'predictions_validation')
-        if not os.path.isdir(pred_folder):
-            os.mkdir(pred_folder)
-
-        if weak_from_strong:
-            pred_folder = os.path.join(pred_folder,
-                                       'predictions_weakfromstrong')
-        else:
-            pred_folder = os.path.join(pred_folder, 'predictions')
+                                   'predictions_weakfromstrong')
     else:
-        if weak_from_strong:
-            pred_folder = os.path.join(OUTPUT_PATH, version,
-                                       'predictions_weakfromstrong')
-        else:
-            pred_folder = os.path.join(OUTPUT_PATH, version, 'predictions')
+        pred_folder = os.path.join(OUTPUT_PATH, version, 'predictions')
 
     if not os.path.isdir(pred_folder):
         os.mkdir(pred_folder)
@@ -597,3 +583,82 @@ def score_ensemble(OUTPUT_PATH, pump, model_list, idx, pumpfolder, labelfile,
     results['strong'] = segment_based_metrics.results()
 
     return results
+
+
+def score_model_validation(
+        OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
+        version, use_tqdm=False, use_orig_duration=False,
+        save_jams=True, weak_from_strong=False):
+
+    results = {}
+
+    # For computing weak metrics
+    weak_true = []
+    weak_pred = []
+
+    # For computing strong (sed_eval) metrics
+    segment_based_metrics = sed_eval.sound_event.SegmentBasedMetrics(
+        pump['static'].encoder.classes_.tolist(), time_resolution=1.0)
+
+    pred_folder = os.path.join(OUTPUT_PATH, version, 'predictions_validation')
+    if not os.path.isdir(pred_folder):
+        os.mkdir(pred_folder)
+
+    if weak_from_strong:
+        pred_folder = os.path.join(pred_folder, 'predictions_weakfromstrong')
+    else:
+        pred_folder = os.path.join(pred_folder, 'predictions')
+
+    if not os.path.isdir(pred_folder):
+        os.mkdir(pred_folder)
+
+    # Predict on test, file by file, and compute eval scores
+    if use_tqdm:
+        idx = tqdm(idx, desc='Evaluating the model')
+
+    # Load durations filel
+    if use_orig_duration:
+        durfile = os.path.join(OUTPUT_PATH, 'durations.json')
+        durations = json.load(open(durfile, 'r'))
+
+    for fid in idx:
+
+        # Load test data
+        pumpfile = os.path.join(pumpfolder, fid + '.h5')
+        dpump = milsed.utils.load_h5(pumpfile)
+        datum = dpump['mel/mag']
+        ytrue = dpump['static/tags'][0]
+
+        # Predict
+        output_d, output_s = model.predict(datum)
+
+        # If output is smaller in time dimension that input, interpolate
+        if output_d.shape[1] != datum.shape[1]:
+            output_d = milsed.utils.interpolate_prediction(output_d, duration,
+                                                           datum.shape[1])
+
+        # Append weak predictions
+        if weak_from_strong:
+            wfs_pred = np.max(output_d[0], axis=0)
+            weak_pred.append((wfs_pred >= 0.5)*1)
+        else:
+            weak_pred.append((output_s[0]>=0.5)*1)  # binarize
+        weak_true.append(ytrue * 1)  # convert from bool to int
+
+    # Compute weak metrics
+    weak_true = np.asarray(weak_true)
+    weak_pred = np.asarray(weak_pred)
+    weak_pred = (weak_pred >= 0.5) * 1  # binarize
+
+    results['weak'] = {}
+    for avg in ['micro', 'macro', 'weighted', 'samples']:
+        results['weak'][avg] = {}
+        results['weak'][avg]['f1'] = sklearn.metrics.f1_score(
+            weak_true, weak_pred, average=avg)
+        results['weak'][avg]['precision'] = sklearn.metrics.precision_score(
+            weak_true, weak_pred, average=avg)
+        results['weak'][avg]['recall'] = sklearn.metrics.recall_score(
+            weak_true, weak_pred, average=avg)
+
+    return results
+
