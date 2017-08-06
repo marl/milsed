@@ -25,6 +25,7 @@ dependencies:
 - ipywidgets=6.0.0=py35_0
 - jedi=0.10.2=py35_2
 - jinja2=2.9.6=py35_0
+- joblib=0.11=py35_0
 - jpeg=9b=0
 - jsonschema=2.6.0=py35_0
 - jupyter=1.0.0=py35_3
@@ -105,7 +106,6 @@ dependencies:
   - humanfriendly==3.2
   - ipython-genutils==0.2.0
   - jams==0.3.0
-  - joblib==0.11
   - jsonpickle==0.9.5
   - jupyter-client==5.0.1
   - jupyter-console==5.1.0
@@ -126,6 +126,7 @@ dependencies:
   - pyrubberband==0.2.2
   - pysoundfile==0.9.0.post1
   - resampy==0.1.5
+  - seaborn==0.8
   - sed-eval==0.1.6
   - sortedcontainers==1.5.7
   - soundfile==0.9.0.post1
