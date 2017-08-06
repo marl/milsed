@@ -18,7 +18,7 @@ from collections import OrderedDict
 
 def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
                 version, use_tqdm=False, use_orig_duration=False,
-                save_jams=True, weak_from_strong=False):
+                save_jams=True, weak_from_strong=False, use_validation=False):
 
     results = {}
 
@@ -31,11 +31,24 @@ def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
         pump['static'].encoder.classes_.tolist(), time_resolution=1.0)
 
     # Create folder for predictions
-    if weak_from_strong:
+    if use_validation:
+
         pred_folder = os.path.join(OUTPUT_PATH, version,
-                                   'predictions_weakfromstrong')
+                                   'predictions_validation')
+        if not os.path.isdir(pred_folder):
+            os.mkdir(pred_folder)
+
+        if weak_from_strong:
+            pred_folder = os.path.join(pred_folder,
+                                       'predictions_weakfromstrong')
+        else:
+            pred_folder = os.path.join(pred_folder, 'predictions')
     else:
-        pred_folder = os.path.join(OUTPUT_PATH, version, 'predictions')
+        if weak_from_strong:
+            pred_folder = os.path.join(OUTPUT_PATH, version,
+                                       'predictions_weakfromstrong')
+        else:
+            pred_folder = os.path.join(OUTPUT_PATH, version, 'predictions')
 
     if not os.path.isdir(pred_folder):
         os.mkdir(pred_folder)
