@@ -8,6 +8,7 @@ from glob import glob
 import six
 import pickle
 import json
+import numpy as np
 
 import pandas as pd
 import keras as K
@@ -24,6 +25,24 @@ from tqdm import tqdm
 
 # OUTPUT_PATH = 'resources'
 OUTPUT_PATH = os.path.expanduser('~/dev/milsed/models/resources')
+
+DCASE_CLASSES = ['Air horn, truck horn',
+                 'Ambulance (siren)',
+                 'Bicycle',
+                 'Bus',
+                 'Car',
+                 'Car alarm',
+                 'Car passing by',
+                 'Civil defense siren',
+                 'Fire engine, fire truck (siren)',
+                 'Motorcycle',
+                 'Police car (siren)',
+                 'Reversing beeps',
+                 'Screaming',
+                 'Skateboard',
+                 'Train',
+                 'Train horn',
+                 'Truck']
 
 
 def process_arguments(args):
@@ -87,6 +106,10 @@ def process_arguments(args):
     parser.add_argument('--verbose', dest='verbose', action='store_const',
                         const=True, default=False,
                         help='Call keras fit with verbose mode (1)')
+
+    parser.add_argument('--train_balanced', dest='train_balanced',
+                        action='store_const', const=True, default=False,
+                        help='Balance classes when training')
 
     parser.add_argument(dest='modelname', type=str,
                         help='Name of model to train')
@@ -156,6 +179,61 @@ def data_generator(working, tracks, sampler, k, augment=True, augment_drc=True,
         return pescador.BufferedStreamer(mux, batch_size)
 
 
+def data_generator_balanced(working, tracks, sampler, k, augment=True,
+                            augment_drc=True, batch_size=32, **kwargs):
+    '''Generate a data stream from a collection of tracks and a sampler'''
+
+    labelfile = (
+        '/beegfs/js7561/datasets/dcase2017/task4_official/combined/metadata/'
+        'labels/groundtruth_weak_label_training_set.csv')
+    labels = pd.read_csv(labelfile, header=None, sep='\t')
+    labels.columns = ['filename', 'start_time', 'end_time', 'label']
+
+    muxes = []
+
+    for l in DCASE_CLASSES:
+        lclass = labels[labels.label==l]
+        filenames = lclass.filename.values
+        filenames = ['Y{}'.format(fn) for fn in filenames]
+        filenames = np.intersect1d(tracks, filenames)
+
+        seeds = []
+
+        for track in tqdm(filenames):
+            fname = os.path.join(working,
+                                 os.path.extsep.join([str(track), 'h5']))
+            seeds.append(pescador.Streamer(data_sampler, fname, sampler))
+
+            if augment:
+                # for fname in sorted(glob(os.path.join(working,
+                #                                       '{}.*.h5'.format(track)))):
+                for aug in range(10):
+                    augname = fname.replace('.h5', '.{:d}.h5'.format(aug))
+                    # seeds.append(pescador.Streamer(data_sampler, fname, sampler))
+                    seeds.append(pescador.Streamer(data_sampler, augname, sampler))
+
+            if augment_drc:
+                for aug in range(10, 14):
+                    augname = fname.replace('.h5', '.{:d}.h5'.format(aug))
+                    seeds.append(
+                        pescador.Streamer(data_sampler, augname, sampler))
+
+        # Send it all to a mux
+        n_active = k//len(DCASE_CLASSES)
+        mux = pescador.Mux(seeds, n_active, **kwargs)
+        # Add mux to list
+        muxes.append(mux)
+
+    # Create mux from muxes
+    supermux = pescador.Mux(muxes, len(muxes), lam=None, pool_weights=None,
+                            with_replacement=True)
+
+    if batch_size == 1:
+        return supermux
+    else:
+        return pescador.BufferedStreamer(supermux, batch_size)
+
+
 def keras_tuples(gen, inputs=None, outputs=None):
 
     if isinstance(inputs, six.string_types):
@@ -202,7 +280,7 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
           duration, rate,
           batch_size, epochs, epoch_size, validation_size,
           early_stopping, reduce_lr, seed, train_streamers, augment,
-          augment_drc, verbose, version):
+          augment_drc, verbose, train_balanced, version):
     '''
     Parameters
     ----------
@@ -293,14 +371,27 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
     idx_val = idx_train_.iloc[val]
 
     print('   Creating training generator...')
-    gen_train = data_generator(working,
-                               idx_train['id'].values, sampler, train_streamers,
-                               augment=augment,
-                               augment_drc=augment_drc,
-                               lam=rate,
-                               batch_size=batch_size,
-                               revive=True,
-                               random_state=seed)
+    if train_balanced:
+        gen_train = data_generator_balanced(
+           working,
+           idx_train['id'].values, sampler,
+           train_streamers,
+           augment=augment,
+           augment_drc=augment_drc,
+           lam=rate,
+           batch_size=batch_size,
+           revive=True,
+           random_state=seed)
+    else:
+        gen_train = data_generator(
+           working,
+           idx_train['id'].values, sampler, train_streamers,
+           augment=augment,
+           augment_drc=augment_drc,
+           lam=rate,
+           batch_size=batch_size,
+           revive=True,
+           random_state=seed)
 
     gen_train = keras_tuples(gen_train(), inputs=inputs, outputs='static/tags')
 
@@ -455,5 +546,6 @@ if __name__ == '__main__':
           params.augment,
           params.augment_drc,
           params.verbose,
+          params.train_balanced,
           version)
 
