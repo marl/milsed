@@ -194,7 +194,7 @@ def data_generator_balanced(working, tracks, sampler, k, augment=True,
     for l in DCASE_CLASSES:
         lclass = labels[labels.label==l]
         filenames = lclass.filename.values
-        filenames = ['Y{}'.format(fn) for fn in filenames]
+        filenames = [('Y{}'.format(fn)).replace('.wav', '') for fn in filenames]
         tracks_str = [str(t) for t in tracks]
         filenames = np.intersect1d(np.array(tracks_str), np.array(filenames))
         print(l, len(filenames))
