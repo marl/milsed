@@ -398,13 +398,23 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
     gen_train = keras_tuples(gen_train(), inputs=inputs, outputs='static/tags')
 
     print('   Creating validation generator...')
-    gen_val = data_generator(working,
-                             idx_val['id'].values, sampler, len(idx_val),
-                             augment=False,
-                             augment_drc=False,
-                             batch_size=batch_size,
-                             revive=True,
-                             random_state=seed)
+    if train_balanced:
+        gen_val = data_generator_balanced(
+            working,
+            idx_val['id'].values, sampler, len(idx_val),
+            augment=False,
+            augment_drc=False,
+            batch_size=batch_size,
+            revive=True,
+            random_state=seed)
+    else:
+        gen_val = data_generator(working,
+                                 idx_val['id'].values, sampler, len(idx_val),
+                                 augment=False,
+                                 augment_drc=False,
+                                 batch_size=batch_size,
+                                 revive=True,
+                                 random_state=seed)
 
     gen_val = keras_tuples(gen_val(), inputs=inputs, outputs='static/tags')
 
