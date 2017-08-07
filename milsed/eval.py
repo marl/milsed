@@ -408,6 +408,36 @@ def predict_eval(OUTPUT_PATH, pump, model, idx, pumpfolder, duration,
 
         df_s_all = df_s_all.append(df_s_ordered)
 
+    # MUST ADD EMPTY ROWS FOR FILES WITH NO PREDICTIONS
+
+    ## STATIC ##
+    added_s = 0
+    uniquefiles_s = np.unique(
+        [v.replace('audio/', '').replace('.wav', '') for v in
+         df_s_all.filename.values])
+
+    for filename in idx:
+        if filename not in uniquefiles_s:
+            df = pd.DataFrame(
+                columns=['filename', 'start_time', 'end_time', 'label'])
+            df.loc[-1, 'filename'] = 'audio/{}.wav'.format(filename)
+            df_s_all = df_s_all.append(df)
+            added_s += 1
+
+    ## DYNAMIC ##
+    added_d = 0
+    uniquefiles_d = np.unique(
+        [v.replace('audio/', '').replace('.wav', '') for v in
+         df_d_all.filename.values])
+
+    for filename in idx:
+        if filename not in uniquefiles_d:
+            df = pd.DataFrame(
+                columns=['filename', 'start_time', 'end_time', 'label'])
+            df.loc[-1, 'filename'] = 'audio/{}.wav'.format(filename)
+            df_d_all = df_d_all.append(df)
+            added_d += 1
+
     # Save results to disk
     if using_test_set:
         dfile = os.path.join(pred_folder, 'pred_test_strong.txt')
