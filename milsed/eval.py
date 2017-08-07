@@ -662,3 +662,65 @@ def score_model_validation(
 
     return results
 
+
+def compare_results_validation(OUTPUT_PATH, versions, sort=False,
+                               weak_from_strong=False, is_ensemble=False,
+                               skip_model_size=False):
+    results = OrderedDict({})
+    params = OrderedDict({})
+    n_weights = OrderedDict({})
+
+    # Load pump
+    pump = pickle.load(
+        open(os.path.join(OUTPUT_PATH, 'pump.pkl'), 'rb'))
+
+    # Load results
+    for version in versions:
+
+        # Load results
+        if weak_from_strong:
+            resultsfile = os.path.join(OUTPUT_PATH, version,
+                                       'predictions_validation',
+                                       'predictions_weakfromstrong',
+                                       'results.json')
+        else:
+            resultsfile = os.path.join(OUTPUT_PATH, version,
+                                       'predictions_validation',
+                                       'predictions',
+                                       'results.json')
+        with open(resultsfile, 'r') as fp:
+            results[version] = json.load(fp)
+
+        if is_ensemble:
+            n_weights[version] = 'ensemble'
+            params[version] = {'modelname': version}
+        elif skip_model_size:
+            n_weights[version] = 'skip'
+            params[version] = {'modelname': version}
+        else:
+            # Load params
+            paramsfile = os.path.join(OUTPUT_PATH, version, 'params.json')
+            with open(paramsfile, 'r') as fp:
+                params[version] = json.load(fp)
+
+            # Compute model size
+            model, _, _ = milsed.models.MODELS[params[version]['modelname']](
+                pump, params[version]['alpha'])
+            n_weights[version] = model.count_params()
+
+    # Convert to dataframe
+    df = pd.DataFrame(
+        columns=['version', 'model', 'n_weights', 'w_f1(ma)', 'w_f1(mi)',
+                 'w_p(mi)', 'w_r(mi)'])
+    for k in results.keys():
+        r = results[k]
+        weak_macro = r['weak']['macro']
+        weak = r['weak']['micro']
+        data = (
+            k, params[k]['modelname'], n_weights[k], weak_macro['f1'],
+            weak['f1'], weak['precision'], weak['recall'])
+        df.loc[len(df), :] = data
+
+    if sort:
+        df = df.sort_values('version')
+    return df
