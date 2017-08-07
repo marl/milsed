@@ -312,7 +312,11 @@ def predict_eval(OUTPUT_PATH, pump, model, idx, pumpfolder, duration,
         columns=['filename', 'start_time', 'end_time', 'label'])
 
     # Create folder for predictions
-    pred_folder = os.path.join(OUTPUT_PATH, version, 'predictions_eval')
+    if weak_from_strong:
+        pred_folder = os.path.join(OUTPUT_PATH, version,
+                                   'predictions_eval_weakfromstrong')
+    else:
+        pred_folder = os.path.join(OUTPUT_PATH, version, 'predictions_eval')
     if not os.path.isdir(pred_folder):
         os.mkdir(pred_folder)
 
@@ -340,6 +344,11 @@ def predict_eval(OUTPUT_PATH, pump, model, idx, pumpfolder, duration,
         if output_d.shape[1] != datum.shape[1]:
             output_d = milsed.utils.interpolate_prediction(output_d, duration,
                                                            datum.shape[1])
+
+        # Create weak from strong
+        if weak_from_strong:
+            wfs_pred = np.max(output_d[0], axis=0)
+            output_s[0] = (wfs_pred >= 0.5) * 1
 
         # Build a dynamic task label transformer for the strong predictions
         dynamic_trans = pumpp.task.DynamicLabelTransformer(
@@ -585,6 +594,207 @@ def score_ensemble(OUTPUT_PATH, pump, model_list, idx, pumpfolder, labelfile,
     return results
 
 
+def score_ensemble_wfs(
+        OUTPUT_PATH, pump, model_list, idx, pumpfolder, labelfile,
+        duration,
+        ensemble_version, use_tqdm=False, use_orig_duration=True,
+        save_jams=True):
+
+    def geo_mean(data, axis=0, use_log=True):
+        if use_log:
+            return np.exp(np.log(data).sum(axis=axis) / len(data))
+        else:
+            return data.prod(axis=axis)**(1.0/len(data))
+
+    results = {}
+    results_wfs = {}
+
+    # For computing weak metrics
+    weak_true = []
+    weak_pred = []
+    weak_pred_wfs = []
+
+    # For computing strong (sed_eval) metrics
+    segment_based_metrics = sed_eval.sound_event.SegmentBasedMetrics(
+        pump['static'].encoder.classes_.tolist(), time_resolution=1.0)
+
+    # Create folder for predictions
+    ensemble_folder = os.path.join(OUTPUT_PATH, ensemble_version)
+    if not os.path.isdir(ensemble_folder):
+        os.mkdir(ensemble_folder)
+
+
+    pred_folder = os.path.join(OUTPUT_PATH, ensemble_version, 'predictions')
+    pred_folder_wfs = os.path.join(OUTPUT_PATH, ensemble_version,
+                                   'predictions_weakfromstrong')
+
+    if not os.path.isdir(pred_folder):
+        os.mkdir(pred_folder)
+    if not os.path.isdir(pred_folder_wfs):
+        os.mkdir(pred_folder_wfs)
+
+    # Predict on test, file by file, and compute eval scores
+    if use_tqdm:
+        idx = tqdm(idx, desc='Evaluating the ensemble')
+
+    # Load durations filel
+    if use_orig_duration:
+        durfile = os.path.join(OUTPUT_PATH, 'durations.json')
+        durations = json.load(open(durfile, 'r'))
+
+    for fid in idx:
+
+        # Load test data
+        pumpfile = os.path.join(pumpfolder, fid + '.h5')
+        dpump = milsed.utils.load_h5(pumpfile)
+        datum = dpump['mel/mag']
+        ytrue = dpump['static/tags'][0]
+
+        # Predict from every model
+        output_d_ensemble = []
+        output_s_ensemble = []
+        for model in model_list:
+            output_d, output_s = model.predict(datum)
+            output_d_ensemble.append(output_d[0])
+            output_s_ensemble.append(output_s[0])
+
+        # Late fusion using geometric mean
+        output_d_ensemble = np.asarray(output_d_ensemble)
+        output_s_ensemble = np.asarray(output_s_ensemble)
+
+        output_d = geo_mean(output_d_ensemble, axis=0, use_log=True)
+        output_s = geo_mean(output_s_ensemble, axis=0, use_log=True)
+
+        output_d = np.expand_dims(output_d, axis=0)
+        output_s = np.expand_dims(output_s, axis=0)
+
+        # If output is smaller in time dimension that input, interpolate
+        if output_d.shape[1] != datum.shape[1]:
+            output_d = milsed.utils.interpolate_prediction(output_d, duration,
+                                                           datum.shape[1])
+
+        # Append weak predictions
+        weak_pred.append((output_s[0] >= 0.5) * 1)  # binarize
+        wfs_pred = np.max(output_d[0], axis=0)
+        weak_pred_wfs.append((wfs_pred >= 0.5)*1)
+
+        weak_true.append(ytrue * 1)  # convert from bool to int
+
+        # Build a dynamic task label transformer for the strong predictions
+        dynamic_trans = pumpp.task.DynamicLabelTransformer(
+            name='dynamic', namespace='tag_open',
+            labels=pump['static'].encoder.classes_)
+        dynamic_trans.encoder = pump['static'].encoder
+
+        # Convert weak and strong predictions into JAMS annotations
+        ann_s = pump['static'].inverse(output_s[0], duration=duration)
+        ann_s_wfs = pump['static'].inverse(wfs_pred, duration=duration)
+        ann_d = dynamic_trans.inverse(output_d[0], duration=duration)
+
+        # add basic annotation metadata
+        ann_s.annotation_metadata.version = ensemble_version
+        ann_s_wfs.annotation_metadata.version = ensemble_version
+        ann_s.annotation_metadata.annotation_tools = 'static'
+        ann_s_wfs.annotation_metadata.annotation_tools = 'static'
+        ann_d.annotation_metadata.version = ensemble_version
+        ann_d.annotation_metadata.annotation_tools = 'dynamic'
+
+        # Create reference jams annotation
+        ref_jam = milsed.utils.create_dcase_jam(fid, labelfile, duration=10.0,
+                                                weak=False)
+        ann_r = ref_jam.annotations.search(annotation_tools='reference')[0]
+
+        # Add annotations to jams
+        jam = jams.JAMS()
+        jam.annotations.append(ann_s)
+        jam.annotations.append(ann_d)
+        jam.annotations.append(ann_r)
+
+        # file metadata
+        jam.file_metadata.duration = duration
+        jam.file_metadata.title = fid
+
+        # Add annotations to jams
+        jam_wfs = jams.JAMS()
+        jam_wfs.annotations.append(ann_s_wfs)
+        jam_wfs.annotations.append(ann_d)
+        jam_wfs.annotations.append(ann_r)
+
+        # file metadata
+        jam_wfs.file_metadata.duration = duration
+        jam_wfs.file_metadata.title = fid
+
+        # Trim annotations to original file's duration
+        if use_orig_duration:
+            orig_duration = durations[fid]
+            jam = jam.trim(0, orig_duration, strict=False)
+            ann_s = jam.annotations.search(annotation_tools='static')[0]
+            ann_d = jam.annotations.search(annotation_tools='dynamic')[0]
+            ann_r = jam.annotations.search(annotation_tools='reference')[0]
+
+            jam_wfs = jam_wfs.trim(0, orig_duration, strict=False)
+            ann_s_wfs = jam_wfs.annotations.search(annotation_tools='static')[0]
+
+        if save_jams:
+            jamfile = os.path.join(pred_folder, '{:s}.jams'.format(fid))
+            jam.save(jamfile)
+
+            jamfile_wfs = os.path.join(pred_folder_wfs, '{:s}.jams'.format(fid))
+            jam_wfs.save(jamfile_wfs)
+
+        # Compute intermediate stats for sed_eval metrics
+        # sed_eval expects a list containing a dict for each event, where the
+        # dict keys are event_onset, event_offset, event_label.
+        ref_list = []
+        for event in ann_r.data:
+            ref_list.append({'event_onset': event.time,
+                             'event_offset': event.time + event.duration,
+                             'event_label': event.value})
+        ref_list = sed_eval.util.event_list.EventList(ref_list)
+
+        est_list = []
+        for event in ann_d.data:
+            est_list.append({'event_onset': event.time,
+                             'event_offset': event.time + event.duration,
+                             'event_label': event.value})
+        est_list = sed_eval.util.event_list.EventList(est_list)
+
+        segment_based_metrics.evaluate(ref_list, est_list)
+
+    # Compute weak metrics
+    weak_true = np.asarray(weak_true)
+    weak_pred = np.asarray(weak_pred)
+    weak_pred = (weak_pred >= 0.5) * 1  # binarize
+    weak_pred_wfs = np.asarray(weak_pred_wfs)
+    weak_pred_wfs = (weak_pred_wfs >= 0.5) * 1  # binarize
+
+    results['weak'] = {}
+    for avg in ['micro', 'macro', 'weighted', 'samples']:
+        results['weak'][avg] = {}
+        results['weak'][avg]['f1'] = sklearn.metrics.f1_score(
+            weak_true, weak_pred, average=avg)
+        results['weak'][avg]['precision'] = sklearn.metrics.precision_score(
+            weak_true, weak_pred, average=avg)
+        results['weak'][avg]['recall'] = sklearn.metrics.recall_score(
+            weak_true, weak_pred, average=avg)
+
+    results_wfs['weak'] = {}
+    for avg in ['micro', 'macro', 'weighted', 'samples']:
+        results_wfs['weak'][avg] = {}
+        results_wfs['weak'][avg]['f1'] = sklearn.metrics.f1_score(
+            weak_true, weak_pred_wfs, average=avg)
+        results_wfs['weak'][avg]['precision'] = sklearn.metrics.precision_score(
+            weak_true, weak_pred_wfs, average=avg)
+        results_wfs['weak'][avg]['recall'] = sklearn.metrics.recall_score(
+            weak_true, weak_pred_wfs, average=avg)
+
+    # Compute strong (sed_eval) metrics
+    results['strong'] = segment_based_metrics.results()
+    results_wfs['strong'] = segment_based_metrics.results()
+
+    return results, results_wfs
+
+
 def score_model_validation(
         OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
         version, use_tqdm=False, use_orig_duration=False,
@@ -724,3 +934,5 @@ def compare_results_validation(OUTPUT_PATH, versions, sort=False,
     if sort:
         df = df.sort_values('version')
     return df
+
+
