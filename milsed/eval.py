@@ -409,19 +409,20 @@ def predict_eval(OUTPUT_PATH, pump, model, idx, pumpfolder, duration,
         df_s_all = df_s_all.append(df_s_ordered)
 
     # MUST ADD EMPTY ROWS FOR FILES WITH NO PREDICTIONS
-
     ## STATIC ##
     added_s = 0
     uniquefiles_s = np.unique(
         [v.replace('audio/', '').replace('.wav', '') for v in
          df_s_all.filename.values])
 
+    missing_files_s = []
     for filename in idx:
         if filename not in uniquefiles_s:
-            df = pd.DataFrame(
-                columns=['filename', 'start_time', 'end_time', 'label'])
-            df.loc[-1, 'filename'] = 'audio/{}.wav'.format(filename)
-            df_s_all = df_s_all.append(df)
+            # df = pd.DataFrame(
+            #     columns=['filename', 'start_time', 'end_time', 'label'])
+            # df.loc[-1, 'filename'] = 'audio/{}.wav'.format(filename)
+            # df_s_all = df_s_all.append(df)
+            missing_files_s.append(filename)
             added_s += 1
 
     ## DYNAMIC ##
@@ -430,27 +431,44 @@ def predict_eval(OUTPUT_PATH, pump, model, idx, pumpfolder, duration,
         [v.replace('audio/', '').replace('.wav', '') for v in
          df_d_all.filename.values])
 
+    missing_files_d = []
     for filename in idx:
         if filename not in uniquefiles_d:
-            df = pd.DataFrame(
-                columns=['filename', 'start_time', 'end_time', 'label'])
-            df.loc[-1, 'filename'] = 'audio/{}.wav'.format(filename)
-            df_d_all = df_d_all.append(df)
+            # df = pd.DataFrame(
+            #     columns=['filename', 'start_time', 'end_time', 'label'])
+            # df.loc[-1, 'filename'] = 'audio/{}.wav'.format(filename)
+            # df_d_all = df_d_all.append(df)
+            missing_files_d.append(filename)
             added_d += 1
 
     # Save results to disk
     if using_test_set:
         dfile = os.path.join(pred_folder, 'pred_test_strong.txt')
-        df_d_all.to_csv(dfile, header=False, index=False, sep='\t')
-
-        dfile = os.path.join(pred_folder, 'pred_test_weak.txt')
-        df_s_all.to_csv(dfile, header=False, index=False, sep='\t')
+        sfile = os.path.join(pred_folder, 'pred_test_weak.txt')
     else:
         dfile = os.path.join(pred_folder, 'pred_eval_strong.txt')
-        df_d_all.to_csv(dfile, header=False, index=False, sep='\t')
+        sfile = os.path.join(pred_folder, 'pred_eval_weak.txt')
 
-        dfile = os.path.join(pred_folder, 'pred_eval_weak.txt')
-        df_s_all.to_csv(dfile, header=False, index=False, sep='\t')
+    # Write to disk
+    df_d_all.to_csv(dfile, header=False, index=False, sep='\t')
+    df_s_all.to_csv(sfile, header=False, index=False, sep='\t')
+
+    # Add files with no preds (DCASE format)
+    # STATIC
+    with open(sfile, "a") as myfile:
+        for n, x in enumerate(missing_files_s):
+            if n + 1 == len(missing_files_s):
+                myfile.write('audio/{}.wav'.format(x))
+            else:
+                myfile.write('audio/{}.wav\n'.format(x))
+
+    # DYNAMIC
+    with open(dfile, "a") as myfile:
+        for n, x in enumerate(missing_files_d):
+            if n + 1 == len(missing_files_d):
+                myfile.write('audio/{}.wav'.format(x))
+            else:
+                myfile.write('audio/{}.wav\n'.format(x))
 
     # Return
     return df_s_all, df_d_all
