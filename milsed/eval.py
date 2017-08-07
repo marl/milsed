@@ -281,7 +281,7 @@ def compare_results(OUTPUT_PATH, versions, sort=False, weak_from_strong=False,
     return df
 
 
-def predict_eval(OUTPUT_PATH, pump, model, idx, pumpfolder, duration,
+def predict_eval(OUTPUT_PATH, pump, model_list, idx, pumpfolder, duration,
                  version, use_tqdm=False, use_orig_duration=True,
                  save_jams=True, weak_from_strong=False,
                  using_test_set=False):
@@ -305,6 +305,11 @@ def predict_eval(OUTPUT_PATH, pump, model, idx, pumpfolder, duration,
     -------
 
     '''
+    def geo_mean(data, axis=0, use_log=True):
+        if use_log:
+            return np.exp(np.log(data).sum(axis=axis) / len(data))
+        else:
+            return data.prod(axis=axis)**(1.0/len(data))
 
     # For storing predictions across all eval files
     df_d_all = pd.DataFrame(
@@ -318,6 +323,7 @@ def predict_eval(OUTPUT_PATH, pump, model, idx, pumpfolder, duration,
                                    'predictions_eval_weakfromstrong')
     else:
         pred_folder = os.path.join(OUTPUT_PATH, version, 'predictions_eval')
+
     if not os.path.isdir(pred_folder):
         os.mkdir(pred_folder)
 
@@ -339,7 +345,26 @@ def predict_eval(OUTPUT_PATH, pump, model, idx, pumpfolder, duration,
         ytrue = dpump['static/tags'][0]  # dummy data
 
         # Predict
-        output_d, output_s = model.predict(datum)
+        if len(model_list)==1:
+            output_d, output_s = model_list[0].predict(datum)
+        else:
+            # Predict from every model
+            output_d_ensemble = []
+            output_s_ensemble = []
+            for model in model_list:
+                output_d, output_s = model.predict(datum)
+                output_d_ensemble.append(output_d[0])
+                output_s_ensemble.append(output_s[0])
+
+            # Late fusion using geometric mean
+            output_d_ensemble = np.asarray(output_d_ensemble)
+            output_s_ensemble = np.asarray(output_s_ensemble)
+
+            output_d = geo_mean(output_d_ensemble, axis=0, use_log=True)
+            output_s = geo_mean(output_s_ensemble, axis=0, use_log=True)
+
+            output_d = np.expand_dims(output_d, axis=0)
+            output_s = np.expand_dims(output_s, axis=0)
 
         # If output is smaller in time dimension that input, interpolate
         if output_d.shape[1] != datum.shape[1]:
