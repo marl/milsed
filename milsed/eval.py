@@ -283,7 +283,8 @@ def compare_results(OUTPUT_PATH, versions, sort=False, weak_from_strong=False,
 
 def predict_eval(OUTPUT_PATH, pump, model, idx, pumpfolder, duration,
                  version, use_tqdm=False, use_orig_duration=True,
-                 save_jams=True, weak_from_strong=False):
+                 save_jams=True, weak_from_strong=False,
+                 using_test_set=False):
     '''
     Predict on EVAL SET and store predictions.
 
@@ -408,11 +409,18 @@ def predict_eval(OUTPUT_PATH, pump, model, idx, pumpfolder, duration,
         df_s_all = df_s_all.append(df_s_ordered)
 
     # Save results to disk
-    dfile = os.path.join(pred_folder, 'pred_dynamic.txt')
-    df_d_all.to_csv(dfile, header=False, index=False, sep='\t')
+    if using_test_set:
+        dfile = os.path.join(pred_folder, 'pred_test_strong.txt')
+        df_d_all.to_csv(dfile, header=False, index=False, sep='\t')
 
-    dfile = os.path.join(pred_folder, 'pred_static.txt')
-    df_s_all.to_csv(dfile, header=False, index=False, sep='\t')
+        dfile = os.path.join(pred_folder, 'pred_test_weak.txt')
+        df_s_all.to_csv(dfile, header=False, index=False, sep='\t')
+    else:
+        dfile = os.path.join(pred_folder, 'pred_eval_strong.txt')
+        df_d_all.to_csv(dfile, header=False, index=False, sep='\t')
+
+        dfile = os.path.join(pred_folder, 'pred_eval_weak.txt')
+        df_s_all.to_csv(dfile, header=False, index=False, sep='\t')
 
     # Return
     return df_s_all, df_d_all
