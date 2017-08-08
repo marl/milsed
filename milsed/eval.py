@@ -499,7 +499,7 @@ def predict_eval(OUTPUT_PATH, pump, model_list, idx, pumpfolder, duration,
                 myfile.write('{}.wav'.format(x[1:]))
             else:
                 # myfile.write('audio/{}.wav\n'.format(x))
-                myfile.write('{}.wav\n'.format(x[:1]))
+                myfile.write('{}.wav\n'.format(x[1:]))
 
     # Return
     return df_s_all, df_d_all
