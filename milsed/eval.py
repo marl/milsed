@@ -415,7 +415,8 @@ def predict_eval(OUTPUT_PATH, pump, model_list, idx, pumpfolder, duration,
 
         # PROCESS DYNAMIC LABELS
         df_d = ann_d.to_dataframe()
-        df_d['filename'] = 'audio/{}.wav'.format(fid)
+        # df_d['filename'] = 'audio/{}.wav'.format(fid) # example on web is bad
+        df_d['filename'] = '{}.wav'.format(fid[1:])
         df_d['start_time'] = df_d.time
         df_d['end_time'] = df_d.time + df_d.duration
         df_d['label'] = df_d['value']
@@ -425,7 +426,8 @@ def predict_eval(OUTPUT_PATH, pump, model_list, idx, pumpfolder, duration,
 
         # PROCESS STATIC LABELS
         df_s = ann_s.to_dataframe()
-        df_s['filename'] = 'audio/{}.wav'.format(fid)
+        # df_s['filename'] = 'audio/{}.wav'.format(fid) # example on web is bad
+        df_s['filename'] = '{}.wav'.format(fid[1:])
         df_s['start_time'] = df_s.time
         df_s['end_time'] = df_s.time + df_s.duration
         df_s['label'] = df_s['value']
@@ -483,17 +485,21 @@ def predict_eval(OUTPUT_PATH, pump, model_list, idx, pumpfolder, duration,
     with open(sfile, "a") as myfile:
         for n, x in enumerate(missing_files_s):
             if n + 1 == len(missing_files_s):
-                myfile.write('audio/{}.wav'.format(x))
+                # myfile.write('audio/{}.wav'.format(x))
+                myfile.write('{}.wav'.format(x[1:]))
             else:
-                myfile.write('audio/{}.wav\n'.format(x))
+                # myfile.write('audio/{}.wav\n'.format(x))
+                myfile.write('{}.wav\n'.format(x[1:]))
 
     # DYNAMIC
     with open(dfile, "a") as myfile:
         for n, x in enumerate(missing_files_d):
             if n + 1 == len(missing_files_d):
-                myfile.write('audio/{}.wav'.format(x))
+                # myfile.write('audio/{}.wav'.format(x))
+                myfile.write('{}.wav'.format(x[1:]))
             else:
-                myfile.write('audio/{}.wav\n'.format(x))
+                # myfile.write('audio/{}.wav\n'.format(x))
+                myfile.write('{}.wav\n'.format(x[:1]))
 
     # Return
     return df_s_all, df_d_all
