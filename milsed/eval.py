@@ -439,7 +439,7 @@ def predict_eval(OUTPUT_PATH, pump, model_list, idx, pumpfolder, duration,
     ## STATIC ##
     added_s = 0
     uniquefiles_s = np.unique(
-        [v.replace('audio/', '').replace('.wav', '') for v in
+        ['Y'+v.replace('.wav', '') for v in
          df_s_all.filename.values])
 
     missing_files_s = []
@@ -455,7 +455,7 @@ def predict_eval(OUTPUT_PATH, pump, model_list, idx, pumpfolder, duration,
     ## DYNAMIC ##
     added_d = 0
     uniquefiles_d = np.unique(
-        [v.replace('audio/', '').replace('.wav', '') for v in
+        ['Y'+v.replace('.wav', '') for v in
          df_d_all.filename.values])
 
     missing_files_d = []
