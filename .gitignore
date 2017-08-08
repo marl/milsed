@@ -3,6 +3,8 @@ jobs/*.out
 milsed/__pycache__/*
 milsed.egg-info/*
 models/__pycache__/*
+models/resources/model*
+models/resources/ensemble*
 notebooks/.ipynb_checkpoints/*
 notebooks/v0/.ipynb_checkpoints/*
 notebooks/v1/.ipynb_checkpoints/*
