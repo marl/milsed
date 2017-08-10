@@ -2007,7 +2007,7 @@ def construct_crnnL3_7_auto_2(pump, alpha):
         kernel_regularizer=K.regularizers.l2(l=1e-4))(p_log)
 
     # EXP autopool output
-    p_static_exp = exp_layer(p_static, name='static/tags')
+    p_static_exp = exp_layer(p_static)
 
     model = K.models.Model([x_mag],
                            [p_dynamic, p_static_exp])
