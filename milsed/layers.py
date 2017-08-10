@@ -180,3 +180,25 @@ class AutoPool(Layer):
         sm = K.exp(scaled - m)
         w = sm / K.sum(sm, axis=self.axis, keepdims=True)
         return K.sum(x * w, axis=self.axis, keepdims=False)
+
+
+class ExpLayer(Layer):
+    '''
+    Keras exp layer
+    '''
+    def __init__(self, **kwargs):
+        super(ExpLayer, self).__init__(**kwargs)
+
+    def get_output_shape_for(self, input_shape):
+        return input_shape
+
+    def compute_output_shape(self, input_shape):
+        return self.get_output_shape_for(input_shape)
+
+    def call(self, x, mask=None):
+        return K.log(x)
+
+    def get_config(self):
+        base_config = super(ExpLayer, self).get_config()
+        return dict(list(base_config.items()))
+
