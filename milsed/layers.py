@@ -196,7 +196,7 @@ class ExpLayer(Layer):
         return self.get_output_shape_for(input_shape)
 
     def call(self, x, mask=None):
-        return K.log(x)
+        return K.exp(x)
 
     def get_config(self):
         base_config = super(ExpLayer, self).get_config()
