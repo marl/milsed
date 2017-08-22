@@ -3236,7 +3236,7 @@ def construct_crnnL3_7_smp_log(pump, alpha):
     p_log = log_layer(p_dynamic)
 
     p_static = milsed.layers.SoftMaxPool(alpha=alpha,
-                                         axis=1)(p_dynamic)
+                                         axis=1)(p_log)
 
     # EXP autopool output
     p_static_exp = milsed.layers.ExpLayer(name='static/tags')(p_static)
@@ -3281,4 +3281,3 @@ MODELS = {'crnn1d_smp': construct_crnn1d_smp,
           'crnnL3_7_auto_4': construct_crnnL3_7_auto_4,
           'crnnL3_7_auto_5': construct_crnnL3_7_auto_5,
           'crnnL3_7_smp_log': construct_crnnL3_7_smp_log}
-
