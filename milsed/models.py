@@ -3126,6 +3126,7 @@ def construct_crnnL3_12_smp(pump, alpha):
 
     return model, model_inputs, model_outputs
 
+
 def construct_crnnL3_7_smp_log(pump, alpha):
     '''
     Like crnnL3_7_smp but with log/exp before/after smp
