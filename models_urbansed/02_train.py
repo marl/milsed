@@ -15,6 +15,7 @@ import keras as K
 
 from sklearn.model_selection import ShuffleSplit
 
+import jams
 import pescador
 import librosa
 import milsed.utils
@@ -23,8 +24,7 @@ from milsed.models import MODELS
 from milsed.eval import score_model
 from tqdm import tqdm
 
-# OUTPUT_PATH = 'resources'
-OUTPUT_PATH = os.path.expanduser('~/dev/milsed/models/resources')
+OUTPUT_PATH = 'resources'
 
 URBANSED_CLASSES = ['air_conditioner',
                     'car_horn',
@@ -36,6 +36,10 @@ URBANSED_CLASSES = ['air_conditioner',
                     'jackhammer',
                     'siren',
                     'street_music']
+
+# Make sure urban-sed jams can load
+jams.schema.add_namespace('resources/sound_event.json')
+
 
 
 def process_arguments(args):

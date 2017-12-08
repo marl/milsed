@@ -9,6 +9,7 @@ import pickle
 from tqdm import tqdm
 from joblib import Parallel, delayed
 
+import jams
 from jams.util import smkdirs
 
 import pumpp
@@ -28,6 +29,9 @@ URBANSED_CLASSES = ['air_conditioner',
                     'jackhammer',
                     'siren',
                     'street_music']
+
+# Make sure urban-sed jams can load
+jams.schema.add_namespace('resources/sound_event.json')
 
 
 def process_arguments(args):
