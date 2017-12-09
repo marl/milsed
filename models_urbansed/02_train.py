@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''DCASE model skeleton'''
+'''UrbanSED model skeleton'''
 
 import argparse
 import os
@@ -24,7 +24,7 @@ from milsed.models import MODELS
 from milsed.eval import score_model
 from tqdm import tqdm
 
-OUTPUT_PATH = 'resources'
+OUTPUT_PATH = os.path.expanduser('~/dev/milsed/models_urbansed/resources')
 
 URBANSED_CLASSES = ['air_conditioner',
                     'car_horn',
@@ -38,7 +38,8 @@ URBANSED_CLASSES = ['air_conditioner',
                     'street_music']
 
 # Make sure urban-sed jams can load
-jams.schema.add_namespace('resources/sound_event.json')
+#jams.schema.add_namespace('resources/sound_event.json')
+jams.schema.add_namespace(os.path.join(OUTPUT_PATH, 'sound_event.json'))
 
 
 
@@ -302,16 +303,8 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
 
     # Load the training data
     print('Load training data...')
-    idx_train_ = pd.read_json(os.path.join(OUTPUT_PATH, 'index_train.json'))
-
-    # Split the training data into train and validation
-
-    splitter_tv = ShuffleSplit(n_splits=1, test_size=0.25,
-                               random_state=seed)
-    train, val = next(splitter_tv.split(idx_train_))
-
-    idx_train = idx_train_.iloc[train]
-    idx_val = idx_train_.iloc[val]
+    idx_train = pd.read_json(os.path.join(OUTPUT_PATH, 'index_train.json'))
+    idx_val = pd.read_json(os.path.join(OUTPUT_PATH, 'index_validate.json'))
 
     print('   Creating training generator...')
     gen_train = data_generator(

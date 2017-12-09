@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''DCASE pre-processing'''
+'''UrbanSED pre-processing'''
 
 import argparse
 import sys
