@@ -125,6 +125,10 @@ def process_arguments(args):
                         help='Path to csv file containing strong labels for '
                              'the test set.')
 
+    parser.add_argument('--train-strong', dest='train_strong',
+                        action='store_const', const=True, default=False,
+                        help='Train with strong labels')
+
     return parser.parse_args(args)
 
 
@@ -224,7 +228,7 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
           duration, rate,
           batch_size, epochs, epoch_size, validation_size,
           early_stopping, reduce_lr, seed, train_streamers, augment,
-          augment_drc, verbose, train_balanced, version):
+          augment_drc, verbose, train_balanced, train_strong, version):
     '''
     Parameters
     ----------
@@ -285,6 +289,9 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
     verbose : bool
         Verbose output during keras training.
 
+    train_strong: bool
+        Use strong training labels
+
     version: str
         Git version number.
     '''
@@ -317,7 +324,12 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
            revive=True,
            random_state=seed)
 
-    gen_train = keras_tuples(gen_train(), inputs=inputs, outputs='static/tags')
+    if train_strong:
+        output_vars = 'dynamic/tags'
+    else:
+        output_vars = 'static/tags'
+
+    gen_train = keras_tuples(gen_train(), inputs=inputs, outputs=output_vars)
 
     print('   Creating validation generator...')
     gen_val = data_generator(working,
@@ -329,10 +341,10 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
                              revive=True,
                              random_state=seed)
 
-    gen_val = keras_tuples(gen_val(), inputs=inputs, outputs='static/tags')
+    gen_val = keras_tuples(gen_val(), inputs=inputs, outputs=output_vars)
 
-    loss = {'static/tags': 'binary_crossentropy'}
-    metrics = {'static/tags': 'accuracy'}
+    loss = {output_vars: 'binary_crossentropy'}
+    metrics = {output_vars: 'accuracy'}
     monitor = 'val_loss'
 
     print('Compile model...')
@@ -414,7 +426,6 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
     print('Done!')
 
 
-
 if __name__ == '__main__':
     params = process_arguments(sys.argv[1:])
 
@@ -472,5 +483,5 @@ if __name__ == '__main__':
           params.augment_drc,
           params.verbose,
           params.train_balanced,
+          params.train_strong,
           version)
-
