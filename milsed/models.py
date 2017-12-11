@@ -3661,6 +3661,7 @@ def construct_cnnL3_7_max(pump, alpha):
 
     return model, model_inputs, model_outputs
 
+
 def construct_cnnL3_7_strong(pump, alpha):
     '''
     Like cnnL3_7 but with strong prediction (and average pooling for compat)
