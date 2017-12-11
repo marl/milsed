@@ -97,10 +97,8 @@ def make_pump(sr, hop_length, n_fft, n_mels):
                                                 namespace='tag_open',
                                                 labels=URBANSED_CLASSES,
                                                 sr=sr,
-                                                hop_length=hop_length * 2**4)
+                                                hop_length=hop_length)
 
-    # hop_length = hop_length * 2 * 2 * 2 * 2
-    # for 4 blocks of L3
     pump = pumpp.Pump(p_feature, p_tag, p_dtag)
 
     # Save the pump

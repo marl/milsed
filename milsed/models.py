@@ -3664,7 +3664,7 @@ def construct_cnnL3_7_max(pump, alpha):
 
 def construct_cnnL3_7_strong(pump, alpha):
     '''
-    Like cnnL3_7 but with strong prediction (and average pooling for compat)
+    Like cnnL3_7 but with strong prediction
 
     Parameters
     ----------
@@ -3698,7 +3698,7 @@ def construct_cnnL3_7_strong(pump, alpha):
                                    activation='relu',
                                    kernel_initializer='he_normal')(bn1)
     bn2 = K.layers.BatchNormalization()(conv2)
-    pool2 = K.layers.MaxPooling2D((2,2), padding='valid')(bn2)
+    pool2 = K.layers.MaxPooling2D((2, 2), padding='valid')(bn2)
 
     # BLOCK 2
     conv3 = K.layers.Convolution2D(32, (3, 3),
@@ -3747,19 +3747,20 @@ def construct_cnnL3_7_strong(pump, alpha):
     bn8 = K.layers.BatchNormalization()(conv_sq)
     sq2 = milsed.layers.SqueezeLayer(axis=-2)(bn8)
 
+    # Up-sample back to input frame rate
+    sq2_up = K.layers.UpSampling1D(size=2**4)(sq2)
+
     n_classes = pump.fields['static/tags'].shape[0]
 
     p0 = K.layers.Dense(n_classes, activation='sigmoid',
                         bias_regularizer=K.regularizers.l2())
 
-    p_dynamic = K.layers.TimeDistributed(p0, name='dynamic/tags')(sq2)
-
-    p_static = K.layers.GlobalAveragePooling1D(name='static/tags')(p_dynamic)
+    p_dynamic = K.layers.TimeDistributed(p0, name='dynamic/tags')(sq2_up)
 
     model = K.models.Model([x_mag],
-                           [p_dynamic, p_static])
+                           [p_dynamic])
 
-    model_outputs = ['dynamic/tags', 'static/tags']
+    model_outputs = ['dynamic/tags']
 
     return model, model_inputs, model_outputs
 
