@@ -3799,5 +3799,5 @@ MODELS = {'crnn1d_smp': construct_crnn1d_smp,
           'cnnL3_7_auto': construct_cnnL3_7_auto,
           'cnnL3_7_avg': construct_cnnL3_7_avg,
           'cnnL3_7_max': construct_cnnL3_7_max,
-          'cnnL3_7_strong': construct_cnnL3_7,
+          'cnnL3_7_strong': construct_cnnL3_7_strong,
           }
