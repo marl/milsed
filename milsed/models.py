@@ -3757,10 +3757,12 @@ def construct_cnnL3_7_strong(pump, alpha):
 
     p_dynamic = K.layers.TimeDistributed(p0, name='dynamic/tags')(sq2_up)
 
-    model = K.models.Model([x_mag],
-                           [p_dynamic])
+    p_static = K.layers.GlobalMaxPooling1D(name='static/tags')(p_dynamic)
 
-    model_outputs = ['dynamic/tags']
+    model_outputs = ['dynamic/tags', 'static/tags']
+
+    model = K.models.Model([x_mag],
+                           [p_dynamic, p_static])
 
     return model, model_inputs, model_outputs
 
