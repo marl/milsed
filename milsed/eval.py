@@ -67,15 +67,17 @@ def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
         # Append weak predictions
         if weak_from_strong:
             wfs_pred = np.max(output_d[0], axis=0)
-            weak_pred.append((wfs_pred >= 0.5)*1)
+            weak_pred.append((wfs_pred >= 0.5) * 1)
         else:
-            weak_pred.append((output_s[0]>=0.5)*1)  # binarize
+            weak_pred.append((output_s[0] >= 0.5) * 1)  # binarize
         weak_true.append(ytrue * 1)  # convert from bool to int
 
         # Build a dynamic task label transformer for the strong predictions
         dynamic_trans = pumpp.task.DynamicLabelTransformer(
             name='dynamic', namespace='tag_open',
-            labels=pump['static'].encoder.classes_)
+            labels=pump['static'].encoder.classes_,
+            sr=pump['mel'].sr,
+            hop_length=pump['mel'].hop_length)
         dynamic_trans.encoder = pump['static'].encoder
 
         # Convert weak and strong predictions into JAMS annotations
@@ -89,7 +91,8 @@ def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
         ann_d.annotation_metadata.annotation_tools = 'dynamic'
 
         # Create reference jams annotation
-        ref_jam = milsed.utils.create_dcase_jam(fid, labelfile, duration=10.0,
+        ref_jam = milsed.utils.create_dcase_jam(fid, labelfile,
+                                                duration=duration,
                                                 weak=False)
         ann_r = ref_jam.annotations.search(annotation_tools='reference')[0]
 
