@@ -1889,6 +1889,7 @@ def construct_crnnL3_7_strong(pump, alpha):
 
     return model, model_inputs, model_outputs
 
+
 def construct_crnnL3_7_auto(pump, alpha):
     '''
     Like crnnL3_7 but with autopool instead of SMP
@@ -1992,11 +1993,7 @@ def construct_crnnL3_7_auto(pump, alpha):
 
     p_dynamic = K.layers.TimeDistributed(p0, name='dynamic/tags')(rnn3)
 
-    p_static = milsed.layers.AutoPool(
-        axis=1,
-        kernel_constraint=K.constraints.non_neg(),
-        kernel_regularizer=K.regularizers.l2(l=1e-4),
-        name='static/tags')(p_dynamic)
+    p_static = milsed.layers.AutoPool(axis=1, name='static/tags')(p_dynamic)
 
     model = K.models.Model([x_mag],
                            [p_dynamic, p_static])
