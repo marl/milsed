@@ -62,7 +62,7 @@ def process_arguments(args):
                         help='Seed for the random number generator')
 
     parser.add_argument('--train-streamers', dest='train_streamers', type=int,
-                        default=2048,
+                        default=256,
                         help='Number of active training streamers')
 
     parser.add_argument('--batch-size', dest='batch_size', type=int,
@@ -70,7 +70,7 @@ def process_arguments(args):
                         help='Size of training batches')
 
     parser.add_argument('--rate', dest='rate', type=int,
-                        default=16,
+                        default=4,
                         help='Rate of pescador stream deactivation')
 
     parser.add_argument('--epochs', dest='epochs', type=int,
