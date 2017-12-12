@@ -26,6 +26,7 @@ module load rubberband/intel/1.8.1
 module load cuda/8.0.44
 module load cudnn/8.0v6.0
 
-python -u $SRCDIR/02_train.py --train-strong cnnL3_7_strong model_bm_l3_strong $SLURM_JOBID /scratch/bm106/URBAN-SED/features /scratch/bm106/URBAN-SED/annotations/gt_test_labels.csv
+# Patch duration here is set to make n_frames = 16n for integer n
+python -u $SRCDIR/02_train.py --train-strong --patch-duration 9.2879818594104311 cnnL3_7_strong model_bm_l3_strong $SLURM_JOBID /scratch/bm106/URBAN-SED/features /scratch/bm106/URBAN-SED/annotations/gt_test_labels.csv
 
 
