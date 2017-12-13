@@ -345,7 +345,7 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
 
     loss = {output_vars: 'binary_crossentropy'}
     metrics = {output_vars: 'accuracy'}
-    monitor = 'val_loss'
+    monitor = 'val_accuracy'
 
     print('Compile model...')
     model.compile(K.optimizers.Adam(), loss=loss, metrics=metrics)
