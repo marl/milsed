@@ -215,7 +215,7 @@ def report_results(OUTPUT_PATH, version):
     print('\nLoss:')
 
     # Visualize training history
-    plt.subplot(2,1,1)
+    plt.subplot(1,2,1)
     plt.plot(history['loss'], label='training loss')
     plt.plot(history['val_loss'], label='validation loss')
     plt.xlabel('Epoch')
@@ -224,7 +224,7 @@ def report_results(OUTPUT_PATH, version):
     # plt.grid()
     plt.legend()
 
-    plt.subplot(2,1,2)
+    plt.subplot(1,2,2)
     plt.plot(history['static/tags_acc'], label='training accuracy')
     plt.plot(history['val_static/tags_acc'], label='validation accuracy')
     plt.xlabel('Epoch')

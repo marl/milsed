@@ -344,7 +344,7 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
     gen_val = keras_tuples(gen_val(), inputs=inputs, outputs=output_vars)
 
     loss = {output_vars: 'binary_crossentropy'}
-    metrics = {output_vars: 'accuracy'}
+    metrics = {output_vars: ['loss', 'accuracy']}
     monitor = 'val_accuracy'
 
     print('Compile model...')
