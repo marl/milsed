@@ -1,285 +1,285 @@
 {
+  "weak": {
+    "macro": {
+      "precision": 0.7299681820734788,
+      "recall": 0.6075993048247069,
+      "f1": 0.6476961113047381
+    },
+    "weighted": {
+      "precision": 0.730127438000699,
+      "recall": 0.6080238898987276,
+      "f1": 0.6479742762633595
+    },
+    "samples": {
+      "precision": 0.7275994047619047,
+      "recall": 0.6320871031746033,
+      "f1": 0.649598984430602
+    },
+    "micro": {
+      "precision": 0.7139807897545357,
+      "recall": 0.6080238898987276,
+      "f1": 0.6567561882055957
+    }
+  },
   "strong": {
     "overall": {
-      "f_measure": {
-        "f_measure": 0.4093913043478261,
-        "precision": 0.3081192162201076,
-        "recall": 0.6098287609129297
-      },
       "accuracy": {
-        "specificity": 0.670103414488014,
-        "accuracy": 0.6584016496504551,
-        "sensitivity": 0.6098287609129297,
-        "balanced_accuracy": 0.6399660877004718
+        "specificity": 0.7541052263109533,
+        "accuracy": 0.7143871487561688,
+        "sensitivity": 0.5497785031475868,
+        "balanced_accuracy": 0.6519418647292701
       },
       "error_rate": {
-        "deletion_rate": 0.21691147897722857,
-        "error_rate": 1.5862801481826896,
-        "substitution_rate": 0.1732597601098417,
-        "insertion_rate": 1.1961089090956192
-      }
-    },
-    "class_wise_average": {
+        "deletion_rate": 0.2657962228957799,
+        "insertion_rate": 0.8346674956607342,
+        "error_rate": 1.2848889925131473,
+        "substitution_rate": 0.18442527395663325
+      },
       "f_measure": {
-        "f_measure": 0.40960074284931264,
-        "precision": 0.31354002873565473,
-        "recall": 0.6127194177331087
-      },
-      "accuracy": {
-        "specificity": 0.6706737320440285,
-        "accuracy": 0.6584016496504551,
-        "sensitivity": 0.6127194177331087,
-        "balanced_accuracy": 0.6416965748885686
-      },
-      "error_rate": {
-        "deletion_rate": 0.3872805822668913,
-        "error_rate": 1.775392717131086,
-        "insertion_rate": 1.3881121348641947
+        "precision": 0.35042932628797885,
+        "recall": 0.5497785031475868,
+        "f_measure": 0.4280311816137392
       }
     },
     "class_wise": {
-      "jackhammer": {
-        "f_measure": {
-          "f_measure": 0.4408658527451127,
-          "precision": 0.3113297365915582,
-          "recall": 0.7550025654181631
+      "gun_shot": {
+        "count": {
+          "Nsys": 4269.0,
+          "Nref": 3439.0
         },
         "accuracy": {
-          "specificity": 0.5927431967469503,
-          "accuracy": 0.6245536387869034,
-          "sensitivity": 0.7550025654181631,
-          "balanced_accuracy": 0.6738728810825567
+          "specificity": 0.8366526585053901,
+          "accuracy": 0.771678920334374,
+          "sensitivity": 0.4614713579528933,
+          "balanced_accuracy": 0.6490620082291416
         },
         "error_rate": {
-          "deletion_rate": 0.24499743458183684,
-          "error_rate": 1.9150846587993844,
-          "insertion_rate": 1.6700872242175475
+          "deletion_rate": 0.5385286420471067,
+          "insertion_rate": 0.7798778714742658,
+          "error_rate": 1.3184065135213725
         },
-        "count": {
-          "Nref": 3898.0,
-          "Nsys": 9453.0
-        }
-      },
-      "engine_idling": {
         "f_measure": {
-          "f_measure": 0.4180665066849503,
-          "precision": 0.31961735028174554,
-          "recall": 0.604161506068863
-        },
-        "accuracy": {
-          "specificity": 0.6723463334595482,
-          "accuracy": 0.6585022380928431,
-          "sensitivity": 0.604161506068863,
-          "balanced_accuracy": 0.6382539197642056
-        },
-        "error_rate": {
-          "deletion_rate": 0.39583849393113696,
-          "error_rate": 1.6819420361654693,
-          "insertion_rate": 1.2861035422343323
-        },
-        "count": {
-          "Nref": 4037.0,
-          "Nsys": 7631.0
-        }
-      },
-      "car_horn": {
-        "f_measure": {
-          "f_measure": 0.39236773633998273,
-          "precision": 0.2753499695678637,
-          "recall": 0.6823529411764706
-        },
-        "accuracy": {
-          "specificity": 0.64069290197972,
-          "accuracy": 0.6476386863149424,
-          "sensitivity": 0.6823529411764706,
-          "balanced_accuracy": 0.6615229215780953
-        },
-        "error_rate": {
-          "deletion_rate": 0.3176470588235294,
-          "error_rate": 2.11342383107089,
-          "insertion_rate": 1.7957767722473605
-        },
-        "count": {
-          "Nref": 3315.0,
-          "Nsys": 8215.0
-        }
-      },
-      "air_conditioner": {
-        "f_measure": {
-          "f_measure": 0.31660231660231664,
-          "precision": 0.25894736842105265,
-          "recall": 0.40728476821192056
-        },
-        "accuracy": {
-          "specificity": 0.7132293037538384,
-          "accuracy": 0.6528189910979229,
-          "sensitivity": 0.40728476821192056,
-          "balanced_accuracy": 0.5602570359828795
-        },
-        "error_rate": {
-          "deletion_rate": 0.5927152317880795,
-          "error_rate": 1.7582781456953642,
-          "insertion_rate": 1.1655629139072847
-        },
-        "count": {
-          "Nref": 3926.0,
-          "Nsys": 6175.0
+          "precision": 0.37174982431482784,
+          "recall": 0.4614713579528933,
+          "f_measure": 0.4117799688635184
         }
       },
       "street_music": {
-        "f_measure": {
-          "f_measure": 0.452909000497265,
-          "precision": 0.375185368264953,
-          "recall": 0.5712493728048169
+        "count": {
+          "Nsys": 7800.0,
+          "Nref": 3986.0
         },
         "accuracy": {
-          "specificity": 0.7614644272504246,
-          "accuracy": 0.7233314892118895,
-          "sensitivity": 0.5712493728048169,
-          "balanced_accuracy": 0.6663569000276208
+          "specificity": 0.6776083669354839,
+          "accuracy": 0.676704602679021,
+          "sensitivity": 0.6731058705469142,
+          "balanced_accuracy": 0.6753571187411991
         },
         "error_rate": {
-          "deletion_rate": 0.42875062719518314,
-          "error_rate": 1.380080280983442,
-          "insertion_rate": 0.951329653788259
+          "deletion_rate": 0.3268941294530858,
+          "insertion_rate": 1.2837431008529854,
+          "error_rate": 1.6106372303060712
         },
+        "f_measure": {
+          "precision": 0.34397435897435896,
+          "recall": 0.6731058705469142,
+          "f_measure": 0.45528593246224336
+        }
+      },
+      "air_conditioner": {
         "count": {
-          "Nref": 3986.0,
-          "Nsys": 6069.0
+          "Nsys": 4477.0,
+          "Nref": 3926.0
+        },
+        "accuracy": {
+          "specificity": 0.8173487321114737,
+          "accuracy": 0.7346661295195891,
+          "sensitivity": 0.39913397860417726,
+          "balanced_accuracy": 0.6082413553578255
+        },
+        "error_rate": {
+          "deletion_rate": 0.6008660213958227,
+          "insertion_rate": 0.7412124299541518,
+          "error_rate": 1.3420784513499746
+        },
+        "f_measure": {
+          "precision": 0.3500111681929864,
+          "recall": 0.39913397860417726,
+          "f_measure": 0.3729620373676068
         }
       },
       "dog_bark": {
-        "f_measure": {
-          "f_measure": 0.3882853915008256,
-          "precision": 0.2930989241668853,
-          "recall": 0.5750321750321751
+        "count": {
+          "Nsys": 8087.0,
+          "Nref": 3885.0
         },
         "accuracy": {
-          "specificity": 0.6632079009876235,
-          "accuracy": 0.645978977015541,
-          "sensitivity": 0.5750321750321751,
-          "balanced_accuracy": 0.6191200380098993
+          "specificity": 0.6438990796969887,
+          "accuracy": 0.6387350186322892,
+          "sensitivity": 0.6175032175032175,
+          "balanced_accuracy": 0.6307011486001031
         },
         "error_rate": {
-          "deletion_rate": 0.424967824967825,
-          "error_rate": 1.811840411840412,
-          "insertion_rate": 1.3868725868725869
+          "deletion_rate": 0.3824967824967825,
+          "insertion_rate": 1.4640926640926641,
+          "error_rate": 1.8465894465894466
         },
-        "count": {
-          "Nref": 3885.0,
-          "Nsys": 7622.0
+        "f_measure": {
+          "precision": 0.29664894274761966,
+          "recall": 0.6175032175032175,
+          "f_measure": 0.4007684597393919
         }
       },
-      "gun_shot": {
-        "f_measure": {
-          "f_measure": 0.37987402519496105,
-          "precision": 0.25593614226533296,
-          "recall": 0.7365513230590288
+      "jackhammer": {
+        "count": {
+          "Nsys": 6343.0,
+          "Nref": 3898.0
         },
         "accuracy": {
-          "specificity": 0.5521770858671856,
-          "accuracy": 0.5840667907257456,
-          "sensitivity": 0.7365513230590288,
-          "balanced_accuracy": 0.6443642044631073
+          "specificity": 0.7645989974937344,
+          "accuracy": 0.7447376372242924,
+          "sensitivity": 0.6634171369933299,
+          "balanced_accuracy": 0.7140080672435322
         },
         "error_rate": {
-          "deletion_rate": 0.26344867694097124,
-          "error_rate": 2.4047688281477173,
-          "insertion_rate": 2.141320151206746
+          "deletion_rate": 0.33658286300667006,
+          "insertion_rate": 0.9638276038994356,
+          "error_rate": 1.3004104669061056
         },
+        "f_measure": {
+          "precision": 0.4076935204162068,
+          "recall": 0.6634171369933299,
+          "f_measure": 0.5050288057806854
+        }
+      },
+      "car_horn": {
         "count": {
-          "Nref": 3439.0,
-          "Nsys": 9897.0
+          "Nsys": 7268.0,
+          "Nref": 3315.0
+        },
+        "accuracy": {
+          "specificity": 0.6856676539926253,
+          "accuracy": 0.6753449491388861,
+          "sensitivity": 0.6238310708898944,
+          "balanced_accuracy": 0.6547493624412599
+        },
+        "error_rate": {
+          "deletion_rate": 0.3761689291101056,
+          "insertion_rate": 1.5686274509803921,
+          "error_rate": 1.9447963800904977
+        },
+        "f_measure": {
+          "precision": 0.2845349477160154,
+          "recall": 0.6238310708898944,
+          "f_measure": 0.3908154587546064
         }
       },
       "siren": {
-        "f_measure": {
-          "f_measure": 0.4588697359807986,
-          "precision": 0.40724244771494966,
-          "recall": 0.525487256371814
+        "count": {
+          "Nsys": 4593.0,
+          "Nref": 4002.0
         },
         "accuracy": {
-          "specificity": 0.807253951262515,
-          "accuracy": 0.7505406628778354,
-          "sensitivity": 0.525487256371814,
-          "balanced_accuracy": 0.6663706038171645
+          "specificity": 0.8290237134207871,
+          "accuracy": 0.7567227313928895,
+          "sensitivity": 0.4702648675662169,
+          "balanced_accuracy": 0.649644290493502
         },
         "error_rate": {
-          "deletion_rate": 0.4745127436281859,
-          "error_rate": 1.2393803098450775,
-          "insertion_rate": 0.7648675662168916
+          "deletion_rate": 0.5297351324337831,
+          "insertion_rate": 0.6774112943528235,
+          "error_rate": 1.2071464267866068
         },
+        "f_measure": {
+          "precision": 0.4097539734378402,
+          "recall": 0.4702648675662169,
+          "f_measure": 0.4379290285049448
+        }
+      },
+      "engine_idling": {
         "count": {
-          "Nref": 4002.0,
-          "Nsys": 5164.0
+          "Nsys": 4293.0,
+          "Nref": 4037.0
+        },
+        "accuracy": {
+          "specificity": 0.8457746033752608,
+          "accuracy": 0.7671467418672575,
+          "sensitivity": 0.45900421104780775,
+          "balanced_accuracy": 0.6523894072115343
+        },
+        "error_rate": {
+          "deletion_rate": 0.5409957889521922,
+          "insertion_rate": 0.6044092147634382,
+          "error_rate": 1.1454050037156305
+        },
+        "f_measure": {
+          "precision": 0.4316328907523876,
+          "recall": 0.45900421104780775,
+          "f_measure": 0.4448979591836735
         }
       },
       "children_playing": {
-        "f_measure": {
-          "f_measure": 0.4235849881900096,
-          "precision": 0.3293877551020408,
-          "recall": 0.5932369517275178
+        "count": {
+          "Nsys": 4732.0,
+          "Nref": 4081.0
         },
         "accuracy": {
-          "specificity": 0.6880774585495507,
-          "accuracy": 0.6686113765528341,
-          "sensitivity": 0.5932369517275178,
-          "balanced_accuracy": 0.6406572051385342
+          "specificity": 0.8128288014197883,
+          "accuracy": 0.7353711350589183,
+          "sensitivity": 0.4359225679980397,
+          "balanced_accuracy": 0.624375684708914
         },
         "error_rate": {
-          "deletion_rate": 0.4067630482724822,
-          "error_rate": 1.61455525606469,
-          "insertion_rate": 1.2077922077922079
+          "deletion_rate": 0.5640774320019603,
+          "insertion_rate": 0.7235971575594217,
+          "error_rate": 1.287674589561382
         },
-        "count": {
-          "Nref": 4081.0,
-          "Nsys": 7350.0
+        "f_measure": {
+          "precision": 0.37595097210481826,
+          "recall": 0.4359225679980397,
+          "f_measure": 0.40372177465108366
         }
       },
       "drilling": {
-        "f_measure": {
-          "f_measure": 0.4245818747569039,
-          "precision": 0.3093052249801655,
-          "recall": 0.6768353174603174
+        "count": {
+          "Nsys": 8698.0,
+          "Nref": 4032.0
         },
         "accuracy": {
-          "specificity": 0.6155447605829285,
-          "accuracy": 0.6279736458280943,
-          "sensitivity": 0.6768353174603174,
-          "balanced_accuracy": 0.646190039021623
+          "specificity": 0.6284594970302034,
+          "accuracy": 0.6427636217141706,
+          "sensitivity": 0.6989087301587301,
+          "balanced_accuracy": 0.6636841135944668
         },
         "error_rate": {
-          "deletion_rate": 0.32316468253968256,
-          "error_rate": 1.8345734126984128,
-          "insertion_rate": 1.5114087301587302
+          "deletion_rate": 0.3010912698412698,
+          "insertion_rate": 1.4583333333333333,
+          "error_rate": 1.759424603174603
         },
-        "count": {
-          "Nref": 4032.0,
-          "Nsys": 8823.0
+        "f_measure": {
+          "precision": 0.32398252471832606,
+          "recall": 0.6989087301587301,
+          "f_measure": 0.44273369992144546
         }
       }
-    }
-  },
-  "weak": {
-    "weighted": {
-      "precision": 0.6817599003129913,
-      "recall": 0.7039729940275253,
-      "f1": 0.6872083565418673
     },
-    "micro": {
-      "precision": 0.6785982478097622,
-      "recall": 0.7039729940275253,
-      "f1": 0.6910527657405047
-    },
-    "samples": {
-      "precision": 0.6927414682539683,
-      "recall": 0.7104150793650793,
-      "f1": 0.6792690545565546
-    },
-    "macro": {
-      "precision": 0.6814405052247763,
-      "recall": 0.7030124117756573,
-      "f1": 0.6865022551673
+    "class_wise_average": {
+      "accuracy": {
+        "specificity": 0.7541862103981735,
+        "accuracy": 0.7143871487561687,
+        "balanced_accuracy": 0.652221255662148,
+        "sensitivity": 0.5502563009261221
+      },
+      "error_rate": {
+        "deletion_rate": 0.44974369907387785,
+        "insertion_rate": 1.026513212126291,
+        "error_rate": 1.476256911200169
+      },
+      "f_measure": {
+        "precision": 0.3595933123375387,
+        "recall": 0.5502563009261221,
+        "f_measure": 0.42659231252292
+      }
     }
   }
 }
