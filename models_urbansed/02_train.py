@@ -94,7 +94,7 @@ def process_arguments(args):
                         help='# epochs before reducing learning rate')
 
     parser.add_argument('--augment', dest='augment', action='store_const',
-                        const=True, default=False,
+                        const=True, default=True,
                         help='Use augmented PITCHSHIFT data for training.')
 
     parser.add_argument('--augment_drc', dest='augment_drc',
