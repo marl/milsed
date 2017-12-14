@@ -15,6 +15,7 @@ import muda
 import milsed.utils
 
 OUTPUT_PATH = 'resources'
+jams.schema.add_namespace(os.path.join(OUTPUT_PATH, 'sound_event.json'))
 
 
 def process_arguments(args):
