@@ -159,11 +159,8 @@ def data_generator(working, tracks, sampler, k, augment=True, augment_drc=True,
         seeds.append(pescador.Streamer(data_sampler, fname, sampler))
 
         if augment:
-            # for fname in sorted(glob(os.path.join(working,
-            #                                       '{}.*.h5'.format(track)))):
-            for aug in range(10):
-                augname = fname.replace('.h5', '.{:d}.h5'.format(aug))
-                # seeds.append(pescador.Streamer(data_sampler, fname, sampler))
+            for augname in sorted(glob(os.path.join(working,
+                                                    '{}.*.h5'.format(track)))):
                 seeds.append(pescador.Streamer(data_sampler, augname, sampler))
 
         if augment_drc:
