@@ -9,6 +9,7 @@ import pickle
 from tqdm import tqdm
 from joblib import Parallel, delayed
 
+import jams
 from jams.util import smkdirs
 import muda
 
