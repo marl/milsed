@@ -109,7 +109,7 @@ def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
         # Trim annotations to original file's duration
         if use_orig_duration:
             orig_duration = durations[fid]
-            jam = jam.trim(0, orig_duration, strict=False)
+            jam = jam.trim(0, min(duration, orig_duration), strict=False)
             ann_s = jam.annotations.search(annotation_tools='static')[0]
             ann_d = jam.annotations.search(annotation_tools='dynamic')[0]
             ann_r = jam.annotations.search(annotation_tools='reference')[0]
