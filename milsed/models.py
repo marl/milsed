@@ -4540,10 +4540,13 @@ def construct_cnnL3_7_attn(pump, alpha):
     w0 = K.layers.Dense(n_classes, activation='linear', use_bias=False)
 
     p_weight_u = K.layers.TimeDistributed(w0, name='attention_score')(sq2)
-    p_weight = K.layers.activations.softmax(p_weight_u, axis=1)
+    #p_weight = K.layers.activations.softmax(p_weight_u, axis=1)
+    p_weight_uP = K.layers.Permute((0,2,1))(p_weight_u)
+    p_weight_P = K.layers.Activation('softmax')(p_weight_uP)
+    p_weight = K.layers.Permute((0,2,1))(p_weight_P)
 
     #p_static = K.layers.Dot(axes=1, name='static/tags')([p_dynamic, p_weight])
-    p_static = K.layers.Merge([p_dynamic, p_weight], 
+    p_static = K.layers.Merge([p_dynamic, p_weight],
                               mode='dot', dot_axes=1,
                               name='static/tags')
 
