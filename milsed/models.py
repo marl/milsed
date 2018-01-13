@@ -4447,7 +4447,7 @@ def construct_crnnL3_7t_strong(pump, alpha):
 
 def construct_cnnL3_7_attn(pump, alpha):
     '''
-    Like cnnL3_7 but with autopooling
+    Like cnnL3_7 but with convolutional attention
 
     Parameters
     ----------
@@ -4542,7 +4542,10 @@ def construct_cnnL3_7_attn(pump, alpha):
     p_weight_u = K.layers.TimeDistributed(w0, name='attention_score')(sq2)
     p_weight = K.layers.activations.softmax(p_weight_u, axis=1)
 
-    p_static = K.layers.Dot(axes=1, name='static/tags')([p_dynamic, p_weight])
+    #p_static = K.layers.Dot(axes=1, name='static/tags')([p_dynamic, p_weight])
+    p_static = K.layers.Merge([p_dynamic, p_weight], 
+                              mode='dot', dot_axes=1,
+                              name='static/tags')
 
     model = K.models.Model([x_mag],
                            [p_dynamic, p_static])
