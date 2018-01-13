@@ -4545,10 +4545,10 @@ def construct_cnnL3_7_attn(pump, alpha):
     p_weight_P = K.layers.Activation('softmax')(p_weight_uP)
     p_weight = K.layers.Permute((2, 1))(p_weight_P)
 
-    #p_static = K.layers.Dot(axes=1, name='static/tags')([p_dynamic, p_weight])
-    p_static = K.layers.Merge([p_dynamic, p_weight],
-                              mode='dot', dot_axes=1,
-                              name='static/tags')
+    p_static = K.layers.Dot(axes=1, name='static/tags')([p_dynamic, p_weight])
+    #p_static = K.layers.Merge([p_dynamic, p_weight],
+    #                          mode='dot', dot_axes=1,
+    #                          name='static/tags')
 
     model = K.models.Model([x_mag],
                            [p_dynamic, p_static])
