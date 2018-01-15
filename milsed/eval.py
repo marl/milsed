@@ -67,20 +67,22 @@ def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
         # Append weak predictions
         if weak_from_strong:
             wfs_pred = np.max(output_d[0], axis=0)
-            weak_pred.append((wfs_pred >= 0.5)*1)
+            weak_pred.append((wfs_pred >= 0.5) * 1)
         else:
-            weak_pred.append((output_s[0]>=0.5)*1)  # binarize
+            weak_pred.append((output_s[0] >= 0.5) * 1)  # binarize
         weak_true.append(ytrue * 1)  # convert from bool to int
 
         # Build a dynamic task label transformer for the strong predictions
         dynamic_trans = pumpp.task.DynamicLabelTransformer(
             name='dynamic', namespace='tag_open',
-            labels=pump['static'].encoder.classes_)
+            labels=pump['static'].encoder.classes_,
+            sr=pump['mel'].sr,
+            hop_length=pump['mel'].hop_length)
         dynamic_trans.encoder = pump['static'].encoder
 
         # Convert weak and strong predictions into JAMS annotations
         ann_s = pump['static'].inverse(output_s[0], duration=duration)
-        ann_d = dynamic_trans.inverse(output_d[0], duration=duration)
+        ann_d = dynamic_trans.inverse(output_d[0])#, duration=duration)
 
         # add basic annotation metadata
         ann_s.annotation_metadata.version = version
@@ -89,7 +91,8 @@ def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
         ann_d.annotation_metadata.annotation_tools = 'dynamic'
 
         # Create reference jams annotation
-        ref_jam = milsed.utils.create_dcase_jam(fid, labelfile, duration=10.0,
+        ref_jam = milsed.utils.create_dcase_jam(fid, labelfile,
+                                                duration=duration,
                                                 weak=False)
         ann_r = ref_jam.annotations.search(annotation_tools='reference')[0]
 
@@ -106,7 +109,7 @@ def score_model(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile, duration,
         # Trim annotations to original file's duration
         if use_orig_duration:
             orig_duration = durations[fid]
-            jam = jam.trim(0, orig_duration, strict=False)
+            jam = jam.trim(0, min(duration, orig_duration), strict=False)
             ann_s = jam.annotations.search(annotation_tools='static')[0]
             ann_d = jam.annotations.search(annotation_tools='dynamic')[0]
             ann_r = jam.annotations.search(annotation_tools='reference')[0]
@@ -212,13 +215,26 @@ def report_results(OUTPUT_PATH, version):
     print('\nLoss:')
 
     # Visualize training history
+    plt.subplot(1,2,1)
     plt.plot(history['loss'], label='training loss')
     plt.plot(history['val_loss'], label='validation loss')
+    plt.axvline(np.argmin(history['val_loss']), color='r')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.title('Loss: {}'.format(version))
     # plt.grid()
     plt.legend()
+
+    plt.subplot(1,2,2)
+    plt.plot(history['static/tags_acc'], label='training accuracy')
+    plt.plot(history['val_static/tags_acc'], label='validation accuracy')
+    plt.axvline(np.argmax(history['val_static/tags_acc']), color='r')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy: {}'.format(version))
+    plt.legend()
+    plt.tight_layout()
+
     plt.show()
 
 

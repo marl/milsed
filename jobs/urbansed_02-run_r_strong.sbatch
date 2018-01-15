@@ -1,0 +1,31 @@
+#!/bin/bash
+
+#SBATCH --gres=gpu:1
+#SBATCH --job-name=train-urbansed-strong-r
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=16GB
+#SBATCH --time=72:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=brian.mcfee@nyu.edu
+#SBATCH --output="train-strong-r--%j.out"
+
+source ~/.bashrc
+source activate py35milsed
+# cd /home/$USER/dev/milsed/models/
+
+SRCDIR=$HOME/dev/milsed/models_urbansed
+RUNDIR=/scratch/bm106/jobs/milsed/run-$SLURM_JOBID
+mkdir -p $RUNDIR
+cd $RUNDIR
+
+module purge
+module load sox/intel/14.4.2
+module load ffmpeg/intel/3.2.2
+module load rubberband/intel/1.8.1
+module load cuda/8.0.44
+module load cudnn/8.0v6.0
+
+python -u $SRCDIR/02_train.py --train-strong crnnL3_7_strong model_bm_l3r_strong $SLURM_JOBID /scratch/bm106/URBAN-SED/features /scratch/bm106/URBAN-SED/annotations/gt_test_labels.csv
+
+

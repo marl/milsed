@@ -1,0 +1,22 @@
+{
+    "verbose": false,
+    "epochs": 150,
+    "max_samples": 128,
+    "strong_labels_file": "/scratch/js7561/datasets/dcase2017/task4_official/combined/metadata/labels/groundtruth_strong_label_testing_set.csv",
+    "seed": 20170612,
+    "augment": true,
+    "working": "/scratch/js7561/datasets/dcase2017/task4_official/combined/features_silence/",
+    "modelname": "crnnL3_7_smp",
+    "reduce_lr": 10,
+    "early_stopping": 30,
+    "alpha": 1.0,
+    "version": "246bcad.0",
+    "jobid": "1732715",
+    "duration": 10.0,
+    "train_streamers": 1024,
+    "modelid": "model011",
+    "validation_size": 1024,
+    "batch_size": 32,
+    "rate": 4,
+    "epoch_size": 512
+}

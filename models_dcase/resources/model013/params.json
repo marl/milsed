@@ -1,0 +1,23 @@
+{
+    "rate": 4,
+    "max_samples": 128,
+    "epoch_size": 512,
+    "seed": 20170612,
+    "augment": true,
+    "jobid": "1742601",
+    "version": "c2b57fd.0",
+    "validation_size": 1024,
+    "duration": 10.0,
+    "epochs": 150,
+    "train_streamers": 1024,
+    "modelid": "model013",
+    "reduce_lr": 10,
+    "alpha": 1.0,
+    "modelname": "crnnL3_7_smp",
+    "working": "/scratch/js7561/datasets/dcase2017/task4_official/combined/features_silence/",
+    "batch_size": 32,
+    "augment_drc": true,
+    "early_stopping": 30,
+    "strong_labels_file": "/scratch/js7561/datasets/dcase2017/task4_official/combined/metadata/labels/groundtruth_strong_label_testing_set.csv",
+    "verbose": false
+}
