@@ -4544,11 +4544,9 @@ def construct_cnnL3_7_attn(pump, alpha):
     p_weight_P = K.layers.Activation('softmax')(p_weight_uP)
     p_weight = K.layers.Permute((2, 1))(p_weight_P)
 
-    p_static = K.layers.Dot(axes=(1, 1),
-                            name='static/tags')([p_dynamic, p_weight])
-
-    model = K.models.Model([x_mag],
-                           [p_dynamic, p_static])
+    p_attn = K.layers.Multiply()([p_dynamic, p_weight])
+    p_static = milsed.layers.GlobalSumPooling1D(name='static/tags')(p_attn)
+    model = K.models.Model([x_mag], [p_dynamic, p_static])
 
     model_outputs = ['dynamic/tags', 'static/tags']
 
