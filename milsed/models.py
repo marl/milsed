@@ -4553,9 +4553,9 @@ def construct_cnnL3_7_attn(pump, alpha):
     return model, model_inputs, model_outputs
 
 
-def construct_crnnL3_7t_attn(pump, alpha):
+def construct_crnnL3_7_attn(pump, alpha):
     '''
-    Like crnnL3_7 but with attention
+    Like crnnL3_7_smp but with attention pooling
 
     Parameters
     ----------
@@ -4589,7 +4589,7 @@ def construct_crnnL3_7t_attn(pump, alpha):
                                    activation='relu',
                                    kernel_initializer='he_normal')(bn1)
     bn2 = K.layers.BatchNormalization()(conv2)
-    pool2 = K.layers.MaxPooling2D((1, 2), padding='valid')(bn2)
+    pool2 = K.layers.MaxPooling2D((2,2), padding='valid')(bn2)
 
     # BLOCK 2
     conv3 = K.layers.Convolution2D(32, (3, 3),
@@ -4602,7 +4602,7 @@ def construct_crnnL3_7t_attn(pump, alpha):
                                    activation='relu',
                                    kernel_initializer='he_normal')(bn3)
     bn4 = K.layers.BatchNormalization()(conv4)
-    pool4 = K.layers.MaxPooling2D((1, 2), padding='valid')(bn4)
+    pool4 = K.layers.MaxPooling2D((2, 2), padding='valid')(bn4)
 
     # BLOCK 3
     conv5 = K.layers.Convolution2D(64, (3, 3),
@@ -4615,7 +4615,7 @@ def construct_crnnL3_7t_attn(pump, alpha):
                                    activation='relu',
                                    kernel_initializer='he_normal')(bn5)
     bn6 = K.layers.BatchNormalization()(conv6)
-    pool6 = K.layers.MaxPooling2D((1, 2), padding='valid')(bn6)
+    pool6 = K.layers.MaxPooling2D((2, 2), padding='valid')(bn6)
 
     # BLOCK 4
     conv7 = K.layers.Convolution2D(128, (3, 3),
@@ -4628,7 +4628,7 @@ def construct_crnnL3_7t_attn(pump, alpha):
                                    activation='relu',
                                    kernel_initializer='he_normal')(bn7)
     bn8 = K.layers.BatchNormalization()(conv8)
-    pool8 = K.layers.MaxPooling2D((1, 2), padding='valid')(bn8)
+    pool8 = K.layers.MaxPooling2D((2, 2), padding='valid')(bn8)
 
     # CONV SQUEEZE
     conv_sq = K.layers.Convolution2D(256, (1, 8),
@@ -4655,7 +4655,6 @@ def construct_crnnL3_7t_attn(pump, alpha):
                         bias_regularizer=K.regularizers.l2())
 
     p_dynamic = K.layers.TimeDistributed(p0, name='dynamic/tags')(rnn3)
-
     w0 = K.layers.Dense(n_classes, activation='linear', use_bias=False)
 
     p_weight_u = K.layers.TimeDistributed(w0, name='attention_score')(rnn3)
@@ -4706,6 +4705,7 @@ MODELS = {'crnn1d_smp': construct_crnn1d_smp,
           'crnnL3_7_auto_4': construct_crnnL3_7_auto_4,
           'crnnL3_7_auto_5': construct_crnnL3_7_auto_5,
           'crnnL3_7_smp_log': construct_crnnL3_7_smp_log,
+          'crnnL3_7_attn': construct_crnnL3_7_attn,
           'cnnL3_7_smp': construct_cnnL3_7_smp,
           'cnnL3_7_auto': construct_cnnL3_7_auto,
           'cnnL3_7_avg': construct_cnnL3_7_avg,
@@ -4718,5 +4718,4 @@ MODELS = {'crnn1d_smp': construct_crnn1d_smp,
           'crnnL3_7t_avg': construct_crnnL3_7t_avg,
           'crnnL3_7t_max': construct_crnnL3_7t_max,
           'crnnL3_7t_strong': construct_crnnL3_7t_strong,
-          'crnnL3_7t_attn': construct_crnnL3_7t_attn,
          }
