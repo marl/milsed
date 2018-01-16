@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=2
 #SBATCH --mem=30GB
-#SBATCH --time=72:00:00
+#SBATCH --time=48:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=justin.salamon@gmail.com
 #SBATCH --output="02train-%j.out"
@@ -26,6 +26,6 @@ module load rubberband/intel/1.8.1
 module load cuda/8.0.44
 module load cudnn/8.0v5.1
 
-python $SRCDIR/02_train.py crnnL3_7_max model025 $SLURM_JOBID /scratch/js7561/datasets/dcase2017/task4_official/combined/features_silence/ /scratch/js7561/datasets/dcase2017/task4_official/combined/metadata/labels/groundtruth_strong_label_testing_set.csv --augment
+python $SRCDIR/02_train.py crnnL3_7_auto_5 model034 $SLURM_JOBID /scratch/js7561/datasets/dcase2017/task4_official/combined/features_silence/ /scratch/js7561/datasets/dcase2017/task4_official/combined/metadata/labels/groundtruth_strong_label_testing_set.csv --augment
 
 
