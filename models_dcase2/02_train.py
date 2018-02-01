@@ -405,7 +405,7 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
     model.load_weights(weight_path)
 #    with open(os.path.join(OUTPUT_PATH, 'index_test.json'), 'r') as fp:
 #        test_idx = json.load(fp)['id']
-    idx_val = pd.read_json(os.path.join(OUTPUT_PATH, 'index_test.json'))
+    test_idx = pd.read_json(os.path.join(OUTPUT_PATH, 'index_test.json'))
 
     # Compute eval scores
     results = score_model(OUTPUT_PATH, pump, model, test_idx, working,
