@@ -197,6 +197,8 @@ def create_dcase_jam(fid, labelfile, duration=10.0, weak=False):
             ann.append(time=0, duration=duration, value=row.label,
                        confidence=1.0)
         else:
+            if row.end_time <= row.start_time:
+                continue
             ann.append(time=row.start_time,
                        duration=(row.end_time - row.start_time),
                        value=row.label,

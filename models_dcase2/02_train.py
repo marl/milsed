@@ -410,7 +410,7 @@ def train(modelname, modelid, working, strong_label_file, alpha, max_samples,
     # Compute eval scores
     results = score_model(OUTPUT_PATH, pump, model, test_idx, working,
                           strong_label_file, duration, modelid,
-                          use_orig_duration=True)
+                          use_orig_duration=True, use_tqdm=True)
 
     # Save results to disk
     results_file = os.path.join(OUTPUT_PATH, modelid, 'results.json')

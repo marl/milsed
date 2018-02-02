@@ -1,5 +1,7 @@
 # CREATED: 7/25/17 15:35 by Justin Salamon <justin.salamon@nyu.edu>
 
+import six
+import sys
 import sklearn
 from tqdm import tqdm
 import sed_eval
