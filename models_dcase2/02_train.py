@@ -79,7 +79,7 @@ def process_arguments(args):
                         help='Maximum number of epochs to train for')
 
     parser.add_argument('--epoch-size', dest='epoch_size', type=int,
-                        default=512,
+                        default=2048,
                         help='Number of batches per epoch')
 
     parser.add_argument('--validation-size', dest='validation_size', type=int,
