@@ -1,0 +1,439 @@
+{
+  "weak": {
+    "weighted": {
+      "f1": 0.06269137906070035,
+      "recall": 0.03777777777777778,
+      "precision": 0.2711803644914756
+    },
+    "samples": {
+      "f1": 0.040344514959202174,
+      "recall": 0.037775763070414026,
+      "precision": 0.04623753399818677
+    },
+    "macro": {
+      "f1": 0.04790391705089268,
+      "recall": 0.03012340944300392,
+      "precision": 0.18017740429505136
+    },
+    "micro": {
+      "f1": 0.07137858642407277,
+      "recall": 0.03777777777777778,
+      "precision": 0.6455696202531646
+    }
+  },
+  "strong": {
+    "overall": {
+      "accuracy": {
+        "accuracy": 0.9417252577685667,
+        "specificity": 0.9996022057008038,
+        "sensitivity": 0.012661015083122316,
+        "balanced_accuracy": 0.5061316103919631
+      },
+      "f_measure": {
+        "f_measure": 0.024848746758859116,
+        "recall": 0.012661015083122316,
+        "precision": 0.6647398843930635
+      },
+      "error_rate": {
+        "deletion_rate": 0.9823846746669602,
+        "insertion_rate": 0.0014312451833094792,
+        "substitution_rate": 0.004954310249917428,
+        "error_rate": 0.9887702301001872
+      }
+    },
+    "class_wise": {
+      "Bicycle": {
+        "accuracy": {
+          "accuracy": 0.9740972450883547,
+          "specificity": 1.0,
+          "sensitivity": 0.0,
+          "balanced_accuracy": 0.5
+        },
+        "f_measure": {
+          "f_measure": NaN,
+          "recall": 0.0,
+          "precision": NaN
+        },
+        "count": {
+          "Nsys": 0.0,
+          "Nref": 236.0
+        },
+        "error_rate": {
+          "deletion_rate": 1.0,
+          "insertion_rate": 0.0,
+          "error_rate": 1.0
+        }
+      },
+      "Fire engine, fire truck (siren)": {
+        "accuracy": {
+          "accuracy": 0.9535726045439579,
+          "specificity": 1.0,
+          "sensitivity": 0.0,
+          "balanced_accuracy": 0.5
+        },
+        "f_measure": {
+          "f_measure": NaN,
+          "recall": 0.0,
+          "precision": NaN
+        },
+        "count": {
+          "Nsys": 0.0,
+          "Nref": 423.0
+        },
+        "error_rate": {
+          "deletion_rate": 1.0,
+          "insertion_rate": 0.0,
+          "error_rate": 1.0
+        }
+      },
+      "Civil defense siren": {
+        "accuracy": {
+          "accuracy": 0.9459993414553836,
+          "specificity": 0.9997668997668998,
+          "sensitivity": 0.07721280602636535,
+          "balanced_accuracy": 0.5384898528966325
+        },
+        "f_measure": {
+          "f_measure": 0.14285714285714285,
+          "recall": 0.07721280602636535,
+          "precision": 0.9534883720930233
+        },
+        "count": {
+          "Nsys": 43.0,
+          "Nref": 531.0
+        },
+        "error_rate": {
+          "deletion_rate": 0.9227871939736346,
+          "insertion_rate": 0.003766478342749529,
+          "error_rate": 0.9265536723163842
+        }
+      },
+      "Motorcycle": {
+        "accuracy": {
+          "accuracy": 0.9442432224783229,
+          "specificity": 1.0,
+          "sensitivity": 0.0,
+          "balanced_accuracy": 0.5
+        },
+        "f_measure": {
+          "f_measure": NaN,
+          "recall": 0.0,
+          "precision": NaN
+        },
+        "count": {
+          "Nsys": 0.0,
+          "Nref": 508.0
+        },
+        "error_rate": {
+          "deletion_rate": 1.0,
+          "insertion_rate": 0.0,
+          "error_rate": 1.0
+        }
+      },
+      "Car": {
+        "accuracy": {
+          "accuracy": 0.784216880693667,
+          "specificity": 0.9962131837307153,
+          "sensitivity": 0.02120141342756184,
+          "balanced_accuracy": 0.5087072985791385
+        },
+        "f_measure": {
+          "f_measure": 0.04097560975609756,
+          "recall": 0.02120141342756184,
+          "precision": 0.6086956521739131
+        },
+        "count": {
+          "Nsys": 69.0,
+          "Nref": 1981.0
+        },
+        "error_rate": {
+          "deletion_rate": 0.9787985865724381,
+          "insertion_rate": 0.013629480060575468,
+          "error_rate": 0.9924280666330136
+        }
+      },
+      "Car alarm": {
+        "accuracy": {
+          "accuracy": 0.9625727143013939,
+          "specificity": 1.0,
+          "sensitivity": 0.0,
+          "balanced_accuracy": 0.5
+        },
+        "f_measure": {
+          "f_measure": NaN,
+          "recall": 0.0,
+          "precision": NaN
+        },
+        "count": {
+          "Nsys": 0.0,
+          "Nref": 341.0
+        },
+        "error_rate": {
+          "deletion_rate": 1.0,
+          "insertion_rate": 0.0,
+          "error_rate": 1.0
+        }
+      },
+      "Screaming": {
+        "accuracy": {
+          "accuracy": 0.9641093184063221,
+          "specificity": 0.9998861696072852,
+          "sensitivity": 0.0,
+          "balanced_accuracy": 0.4999430848036426
+        },
+        "f_measure": {
+          "f_measure": 0.0,
+          "recall": 0.0,
+          "precision": 0.0
+        },
+        "count": {
+          "Nsys": 1.0,
+          "Nref": 326.0
+        },
+        "error_rate": {
+          "deletion_rate": 1.0,
+          "insertion_rate": 0.003067484662576687,
+          "error_rate": 1.0030674846625767
+        }
+      },
+      "Car passing by": {
+        "accuracy": {
+          "accuracy": 0.9645483481505872,
+          "specificity": 1.0,
+          "sensitivity": 0.0,
+          "balanced_accuracy": 0.5
+        },
+        "f_measure": {
+          "f_measure": NaN,
+          "recall": 0.0,
+          "precision": NaN
+        },
+        "count": {
+          "Nsys": 0.0,
+          "Nref": 323.0
+        },
+        "error_rate": {
+          "deletion_rate": 1.0,
+          "insertion_rate": 0.0,
+          "error_rate": 1.0
+        }
+      },
+      "Skateboard": {
+        "accuracy": {
+          "accuracy": 0.9612556250685984,
+          "specificity": 0.9998858317159494,
+          "sensitivity": 0.0,
+          "balanced_accuracy": 0.4999429158579747
+        },
+        "f_measure": {
+          "f_measure": 0.0,
+          "recall": 0.0,
+          "precision": 0.0
+        },
+        "count": {
+          "Nsys": 1.0,
+          "Nref": 352.0
+        },
+        "error_rate": {
+          "deletion_rate": 1.0,
+          "insertion_rate": 0.002840909090909091,
+          "error_rate": 1.0028409090909092
+        }
+      },
+      "Ambulance (siren)": {
+        "accuracy": {
+          "accuracy": 0.9562067830095489,
+          "specificity": 1.0,
+          "sensitivity": 0.0,
+          "balanced_accuracy": 0.5
+        },
+        "f_measure": {
+          "f_measure": NaN,
+          "recall": 0.0,
+          "precision": NaN
+        },
+        "count": {
+          "Nsys": 0.0,
+          "Nref": 399.0
+        },
+        "error_rate": {
+          "deletion_rate": 1.0,
+          "insertion_rate": 0.0,
+          "error_rate": 1.0
+        }
+      },
+      "Police car (siren)": {
+        "accuracy": {
+          "accuracy": 0.939413895291406,
+          "specificity": 0.9968450572563683,
+          "sensitivity": 0.05063291139240506,
+          "balanced_accuracy": 0.5237389843243867
+        },
+        "f_measure": {
+          "f_measure": 0.09210526315789473,
+          "recall": 0.05063291139240506,
+          "precision": 0.509090909090909
+        },
+        "count": {
+          "Nsys": 55.0,
+          "Nref": 553.0
+        },
+        "error_rate": {
+          "deletion_rate": 0.9493670886075949,
+          "insertion_rate": 0.048824593128390596,
+          "error_rate": 0.9981916817359855
+        }
+      },
+      "Bus": {
+        "accuracy": {
+          "accuracy": 0.9503896388980353,
+          "specificity": 1.0,
+          "sensitivity": 0.0,
+          "balanced_accuracy": 0.5
+        },
+        "f_measure": {
+          "f_measure": NaN,
+          "recall": 0.0,
+          "precision": NaN
+        },
+        "count": {
+          "Nsys": 0.0,
+          "Nref": 452.0
+        },
+        "error_rate": {
+          "deletion_rate": 1.0,
+          "insertion_rate": 0.0,
+          "error_rate": 1.0
+        }
+      },
+      "Train": {
+        "accuracy": {
+          "accuracy": 0.8823400285369334,
+          "specificity": 1.0,
+          "sensitivity": 0.0,
+          "balanced_accuracy": 0.5
+        },
+        "f_measure": {
+          "f_measure": NaN,
+          "recall": 0.0,
+          "precision": NaN
+        },
+        "count": {
+          "Nsys": 0.0,
+          "Nref": 1072.0
+        },
+        "error_rate": {
+          "deletion_rate": 1.0,
+          "insertion_rate": 0.0,
+          "error_rate": 1.0
+        }
+      },
+      "Train horn": {
+        "accuracy": {
+          "accuracy": 0.9668532543079794,
+          "specificity": 1.0,
+          "sensitivity": 0.0,
+          "balanced_accuracy": 0.5
+        },
+        "f_measure": {
+          "f_measure": NaN,
+          "recall": 0.0,
+          "precision": NaN
+        },
+        "count": {
+          "Nsys": 0.0,
+          "Nref": 302.0
+        },
+        "error_rate": {
+          "deletion_rate": 1.0,
+          "insertion_rate": 0.0,
+          "error_rate": 1.0
+        }
+      },
+      "Reversing beeps": {
+        "accuracy": {
+          "accuracy": 0.9749753045768851,
+          "specificity": 1.0,
+          "sensitivity": 0.0,
+          "balanced_accuracy": 0.5
+        },
+        "f_measure": {
+          "f_measure": NaN,
+          "recall": 0.0,
+          "precision": NaN
+        },
+        "count": {
+          "Nsys": 0.0,
+          "Nref": 228.0
+        },
+        "error_rate": {
+          "deletion_rate": 1.0,
+          "insertion_rate": 0.0,
+          "error_rate": 1.0
+        }
+      },
+      "Air horn, truck horn": {
+        "accuracy": {
+          "accuracy": 0.9633410163538579,
+          "specificity": 1.0,
+          "sensitivity": 0.0,
+          "balanced_accuracy": 0.5
+        },
+        "f_measure": {
+          "f_measure": NaN,
+          "recall": 0.0,
+          "precision": NaN
+        },
+        "count": {
+          "Nsys": 0.0,
+          "Nref": 334.0
+        },
+        "error_rate": {
+          "deletion_rate": 1.0,
+          "insertion_rate": 0.0,
+          "error_rate": 1.0
+        }
+      },
+      "Truck": {
+        "accuracy": {
+          "accuracy": 0.9211941609044013,
+          "specificity": 1.0,
+          "sensitivity": 0.00554016620498615,
+          "balanced_accuracy": 0.502770083102493
+        },
+        "f_measure": {
+          "f_measure": 0.011019283746556474,
+          "recall": 0.00554016620498615,
+          "precision": 1.0
+        },
+        "count": {
+          "Nsys": 4.0,
+          "Nref": 722.0
+        },
+        "error_rate": {
+          "deletion_rate": 0.9944598337950139,
+          "insertion_rate": 0.0,
+          "error_rate": 0.9944598337950139
+        }
+      }
+    },
+    "class_wise_average": {
+      "accuracy": {
+        "accuracy": 0.9417252577685669,
+        "specificity": 0.999564537769248,
+        "sensitivity": 0.009093370414783435,
+        "balanced_accuracy": 0.5043289540920158
+      },
+      "f_measure": {
+        "f_measure": 0.04782621658628194,
+        "recall": 0.009093370414783435,
+        "precision": 0.5118791555596409
+      },
+      "error_rate": {
+        "deletion_rate": 0.9909066295852166,
+        "insertion_rate": 0.004242879134423609,
+        "error_rate": 0.9951495087196401
+      }
+    }
+  }
+}
