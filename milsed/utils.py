@@ -189,7 +189,7 @@ def create_dcase_jam(fid, labelfile, duration=10.0, weak=False):
     labeldf = pd.read_csv(labelfile, header=None, sep='\t')
     labeldf.columns = ['filename', 'start_time', 'end_time', 'label']
     labeldf = labeldf[labeldf['filename'].str.contains(fid_)]
-    assert len(labeldf) > 0
+#    assert len(labeldf) > 0
 
     # Add tag for each label
     for idx, row in labeldf.iterrows():
