@@ -22,7 +22,7 @@ from milsed.models import MODELS
 from milsed.eval import score_model
 from tqdm import tqdm
 
-OUTPUT_PATH = 'resources'
+OUTPUT_PATH = os.path.expanduser('~/dev/milsed/models_medley/resources')
 
 MEDLEY_CLASSES = ['drum set',
                   'electric bass',
@@ -163,7 +163,6 @@ def data_generator(working, tracks, sampler, k, augment=True,
         return mux
     else:
         return pescador.BufferedStreamer(mux, batch_size)
-
 
 
 def keras_tuples(gen, inputs=None, outputs=None):
