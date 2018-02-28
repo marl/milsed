@@ -8,8 +8,6 @@ from glob import glob
 import six
 import pickle
 import json
-import numpy as np
-import re
 
 import pandas as pd
 import keras as K
@@ -19,7 +17,7 @@ import librosa
 import milsed.utils
 from jams.util import smkdirs
 from milsed.models import MODELS
-from milsed.eval import score_model
+from milsed.eval import score_model_variable
 from tqdm import tqdm
 
 OUTPUT_PATH = os.path.expanduser('~/dev/milsed/models_medley/resources')
@@ -395,9 +393,9 @@ def train(fold,
     test_idx = pd.read_json(os.path.join(OUTPUT_PATH, 'index_test{:02d}.json'.format(fold)))['id']
 
     # Compute eval scores
-    results = score_model(OUTPUT_PATH, pump, model, test_idx, working,
-                          strong_label_file, duration, modelid,
-                          use_orig_duration=True, use_tqdm=True, weak_from_strong=True)
+    results = score_model_variable(OUTPUT_PATH, pump, model, test_idx, working,
+                                   strong_label_file, modelid,
+                                   use_tqdm=True, weak_from_strong=True)
 
     # Save results to disk
     results_file = os.path.join(OUTPUT_PATH, modelid, '{:02d}'.format(fold), 'results.json')
