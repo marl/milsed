@@ -397,7 +397,7 @@ def train(fold,
     # Compute eval scores
     results = score_model(OUTPUT_PATH, pump, model, test_idx, working,
                           strong_label_file, duration, modelid,
-                          use_orig_duration=True, use_tqdm=True)
+                          use_orig_duration=True, use_tqdm=True, weak_from_strong=True)
 
     # Save results to disk
     results_file = os.path.join(OUTPUT_PATH, modelid, '{:02d}'.format(fold), 'results.json')
