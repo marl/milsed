@@ -446,6 +446,7 @@ if __name__ == '__main__':
     for fold in range(5):
         smkdirs(os.path.join(OUTPUT_PATH, params.modelid, '{:02d}'.format(fold)))
 
+        print('FOLD: {}'.format(fold))
         train(fold,
               params.modelname,
               params.modelid,
