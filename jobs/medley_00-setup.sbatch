@@ -4,7 +4,7 @@
 #SBATCH --job-name=medley-00setup
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=4GB
+#SBATCH --mem=8GB
 #SBATCH --time=12:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=brian.mcfee@nyu.edu
@@ -21,5 +21,5 @@ module load ffmpeg/intel/3.2.2
 module load cuda/8.0.44
 module load cudnn/8.0v5.1
 
-python -u 00_setup.py /scratch/$USER/MedleyDB_downmix/original /scratch/$USER/MedleyDB_downmix/aug --semitones 2 --audio-ext wav --jams-ext jams --jobs 10
+python -u 00_setup.py /scratch/$USER/MedleyDB_downmix/original /scratch/$USER/MedleyDB_downmix/aug --semitones 2 --audio-ext wav --jams-ext jams --jobs 4
 
