@@ -1107,7 +1107,7 @@ def score_model_variable(OUTPUT_PATH, pump, model, idx, pumpfolder, labelfile,
 
         # Convert weak and strong predictions into JAMS annotations
         ann_s = pump['static'].inverse(output_s[0], duration=duration)
-        ann_d = dynamic_trans.inverse(output_d[0], duration=duration)
+        ann_d = dynamic_trans.inverse(output_d[0])
 
         # add basic annotation metadata
         ann_s.annotation_metadata.version = version
