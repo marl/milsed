@@ -131,7 +131,7 @@ def data_sampler(fname, sampler):
     '''Generate samples from a specified h5 file'''
     for datum in sampler(milsed.utils.load_h5(fname)):
         # Clobber the static observation with the patch
-        datum['static/tags'] = np.max(datum['static/tags'], axis=1)
+        datum['static/tags'] = np.max(datum['dynamic/tags'], axis=1)
         yield datum
 
 
