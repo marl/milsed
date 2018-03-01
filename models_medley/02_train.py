@@ -6,6 +6,7 @@ import os
 import sys
 from glob import glob
 import six
+import numpy as np
 import pickle
 import json
 
@@ -129,6 +130,8 @@ def make_sampler(max_samples, duration, pump, seed):
 def data_sampler(fname, sampler):
     '''Generate samples from a specified h5 file'''
     for datum in sampler(milsed.utils.load_h5(fname)):
+        # Clobber the static observation with the patch
+        datum['static/tags'] = np.max(datum['static/tags'], axis=1)
         yield datum
 
 
