@@ -23,15 +23,9 @@ MEDLEY_CLASSES = ['drum set',
                   'piano',
                   'male singer',
                   'clean electric guitar',
-                  'vocalists',
                   'female singer',
                   'acoustic guitar',
-                  'distorted electric guitar',
-                  'auxiliary percussion',
-                  'double bass',
-                  'violin',
-                  'cello',
-                  'flute']
+                  'distorted electric guitar']
 
 
 def process_arguments(args):
