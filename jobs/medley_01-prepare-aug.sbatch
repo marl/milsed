@@ -21,5 +21,5 @@ module load ffmpeg/intel/3.2.2
 module load cuda/8.0.44
 module load cudnn/8.0v5.1
 
-python -u 01_prepare.py /scratch/bm106/MedleyDB_downmix/aug /scratch/bm106/MedleyDB_downmix/features --sample-rate 44100 --hop-length 1024 --nfft 2048 --nmels 128 --jobs 4 --overwrite
+python -u 01_prepare.py /scratch/bm106/MedleyDB_downmix/aug /scratch/bm106/MedleyDB_downmix/features --sample-rate 44100 --hop-length 1024 --nfft 2048 --nmels 128 --jobs 4 --overwrite --tqdm
 
