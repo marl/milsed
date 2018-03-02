@@ -63,6 +63,10 @@ def process_arguments(args):
                         default=4,
                         help='Rate of pescador stream deactivation')
 
+    parser.add_argument('--threshold', dest='threshold', type=float,
+                        default=0.1,
+                        help='Static aggregation threshold for patches')
+
     parser.add_argument('--epochs', dest='epochs', type=int,
                         default=150,
                         help='Maximum number of epochs to train for')
@@ -127,15 +131,18 @@ def make_sampler(max_samples, duration, pump, seed):
     return pump.sampler(max_samples, n_frames, random_state=seed)
 
 
-def data_sampler(fname, sampler):
+def data_sampler(fname, sampler, threshold):
     '''Generate samples from a specified h5 file'''
     for datum in sampler(milsed.utils.load_h5(fname)):
         # Clobber the static observation with the patch
-        datum['static/tags'] = np.max(datum['dynamic/tags'], axis=1)
+        #datum['static/tags'] = np.max(datum['dynamic/tags'], axis=1)
+
+        # We need at least 10% of the clip to be active for this to count as a static label
+        datum['static/tags'] = np.mean(datum['dynamic/tags'], axis=1) >= threshold
         yield datum
 
 
-def data_generator(working, tracks, sampler, k, augment=True,
+def data_generator(working, tracks, sampler, k, threshold, augment=True,
                    batch_size=32, **kwargs):
     '''Generate a data stream from a collection of tracks and a sampler'''
 
@@ -144,12 +151,12 @@ def data_generator(working, tracks, sampler, k, augment=True,
     for track in tqdm(tracks):
         fname = os.path.join(working,
                              os.path.extsep.join([str(track), 'h5']))
-        seeds.append(pescador.Streamer(data_sampler, fname, sampler))
+        seeds.append(pescador.Streamer(data_sampler, fname, sampler, threshold))
 
         if augment:
             for augname in sorted(glob(os.path.join(working,
                                                     '{}.*.h5'.format(track)))):
-                seeds.append(pescador.Streamer(data_sampler, augname, sampler))
+                seeds.append(pescador.Streamer(data_sampler, augname, sampler, threshold))
 
     # Send it all to a mux
     mux = pescador.Mux(seeds, k, **kwargs)
@@ -204,7 +211,7 @@ class LossHistory(K.callbacks.Callback):
 
 def train(fold,
           modelname, modelid, working, strong_label_file, alpha, max_samples,
-          duration, rate,
+          duration, rate, threshold,
           batch_size, epochs, epoch_size, validation_size,
           early_stopping, reduce_lr, seed, train_streamers, augment,
           verbose, train_balanced, train_strong, version):
@@ -240,6 +247,9 @@ def train(fold,
 
     rate : int
         Poisson rate for pescador
+
+    threshold : float (0, 1)
+        Minimum percentage of a patch activation to count as a postive static label
 
     epochs : int
         Maximum number of epoch
@@ -295,7 +305,7 @@ def train(fold,
     print('   Creating training generator...')
     gen_train = data_generator(
            working,
-           idx_train['id'].values, sampler, train_streamers,
+           idx_train['id'].values, sampler, train_streamers, threshold,
            augment=augment,
            lam=rate,
            batch_size=batch_size,
@@ -311,7 +321,7 @@ def train(fold,
 
     print('   Creating validation generator...')
     gen_val = data_generator(working,
-                             idx_val['id'].values, sampler, len(idx_val),
+                             idx_val['id'].values, sampler, len(idx_val), threshold,
                              augment=False,
                              lam=None,
                              batch_size=batch_size,
@@ -438,7 +448,7 @@ if __name__ == '__main__':
               'w') as fd:
         json.dump(vars(params), fd, indent=4)
 
-    for fold in range(5):
+    for fold in range(10):
         smkdirs(os.path.join(OUTPUT_PATH, params.modelid, '{:02d}'.format(fold)))
 
         print('FOLD: {}'.format(fold))
@@ -451,6 +461,7 @@ if __name__ == '__main__':
               params.max_samples,
               params.duration,
               params.rate,
+              params.threshold,
               params.batch_size,
               params.epochs,
               params.epoch_size,
