@@ -179,7 +179,7 @@ def report_results(OUTPUT_PATH, version):
     # report
     print('{:<10}{}'.format('Model', version))
     print('\nWeak:')
-    for metric in results['weak']['micro'].keys():
+    for metric in ['precision', 'recall', 'f1']: #results['weak']['micro'].keys():
         print('{:<10}{:.3f}'.format(metric, results['weak']['micro'][metric]))
 
     print('\nStrong:')
