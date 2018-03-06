@@ -212,7 +212,7 @@ def report_results(OUTPUT_PATH, version):
     history = pd.read_csv(csvfile)
 
     # Set sns style
-    sns.set()
+    #sns.set()
 
     print('\nLoss:')
 
