@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:p100:1
 #SBATCH --job-name=train-dcase2-dcase2-cauto
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
