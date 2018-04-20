@@ -1,7 +1,10 @@
 # CREATED: 6/12/17 13:45 by Justin Salamon <justin.salamon@nyu.edu>
 
 from keras import backend as K
-from keras.engine.topology import Layer
+from keras.engine.topology import Layer, InputSpec
+from keras import initializers
+from keras import constraints
+from keras import regularizers
 
 
 class SoftMaxPool(Layer):
@@ -98,3 +101,131 @@ class BagToBatchLayer(Layer):
         config = {'axis': self.axis}
         base_config = super(BagToBatchLayer, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
+
+
+class AutoPool(Layer):
+    '''Automatically tuned soft-max pooling.
+
+    This layer automatically adapts the pooling behavior to interpolate
+    between mean- and max-pooling for each dimension.
+    '''
+    def __init__(self, axis=0,
+                 kernel_initializer='ones',
+                 kernel_constraint=None,
+                 kernel_regularizer=None,
+                 **kwargs):
+        '''
+
+        Parameters
+        ----------
+        axis : int
+            Axis along which to perform the pooling. By default 0
+            (should be time).
+
+        kernel_initializer: Initializer for the weights matrix
+            (see [initializers](../initializers.md)).
+        kernel_regularizer: Regularizer function applied to
+            the weights matrix
+            (see [regularizer](../regularizers.md)).
+        kernel_constraint: Constraint function applied to
+            the weights matrix
+            (seeo [constraints](../constraints.md)).
+        kwargs
+        '''
+
+        if 'input_shape' not in kwargs and 'input_dim' in kwargs:
+            kwargs['input_shape'] = (kwargs.pop('input_dim'), )
+
+        super(AutoPool, self).__init__(**kwargs)
+
+        self.axis = axis
+        self.kernel_initializer = initializers.get(kernel_initializer)
+        self.kernel_constraint = constraints.get(kernel_constraint)
+        self.kernel_regularizer = regularizers.get(kernel_regularizer)
+        self.input_spec = InputSpec(min_ndim=3)
+        self.supports_masking = True
+
+    def build(self, input_shape):
+        assert len(input_shape) >= 3
+        input_dim = input_shape[-1]
+
+        self.kernel = self.add_weight(shape=(1, input_dim),
+                                      initializer=self.kernel_initializer,
+                                      name='kernel',
+                                      regularizer=self.kernel_regularizer,
+                                      constraint=self.kernel_constraint)
+        self.input_spec = InputSpec(min_ndim=2, axes={-1: input_dim})
+        self.built = True
+
+    def compute_output_shape(self, input_shape):
+        return self.get_output_shape_for(input_shape)
+
+    def get_output_shape_for(self, input_shape):
+        shape = list(input_shape)
+        del shape[self.axis]
+        return tuple(shape)
+
+    def get_config(self):
+        config = {'kernel_initializer': initializers.serialize(self.kernel_initializer),
+                  'kernel_constraint': constraints.serialize(self.kernel_constraint),
+                  'kernel_regularizer': regularizers.serialize(self.kernel_regularizer),
+                  'axis': self.axis}
+
+        base_config = super(AutoPool, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+
+    def call(self, x, mask=None):
+        scaled = self.kernel * x
+        m = K.max(scaled, axis=self.axis, keepdims=True)
+        sm = K.exp(scaled - m)
+        w = sm / K.sum(sm, axis=self.axis, keepdims=True)
+        return K.sum(x * w, axis=self.axis, keepdims=False)
+
+
+class ExpLayer(Layer):
+    '''
+    Keras exp layer
+    '''
+    def __init__(self, **kwargs):
+        super(ExpLayer, self).__init__(**kwargs)
+
+    def get_output_shape_for(self, input_shape):
+        return input_shape
+
+    def compute_output_shape(self, input_shape):
+        return self.get_output_shape_for(input_shape)
+
+    def call(self, x, mask=None):
+        return K.exp(x)
+
+    def get_config(self):
+        base_config = super(ExpLayer, self).get_config()
+        return dict(list(base_config.items()))
+
+
+class _GlobalPooling1D(Layer):
+    """Abstract class for different global pooling 1D layers.
+    """
+
+    def __init__(self, **kwargs):
+        super(_GlobalPooling1D, self).__init__(**kwargs)
+        self.input_spec = InputSpec(ndim=3)
+
+    def compute_output_shape(self, input_shape):
+        return (input_shape[0], input_shape[2])
+
+    def call(self, inputs):
+        raise NotImplementedError
+
+
+class GlobalSumPooling1D(_GlobalPooling1D):
+    """Global average pooling operation for temporal data.
+    # Input shape
+        3D tensor with shape: `(batch_size, steps, features)`.
+    # Output shape
+        2D tensor with shape:
+        `(batch_size, features)`
+    """
+
+    def call(self, inputs):
+        return K.sum(inputs, axis=1)
